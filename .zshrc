@@ -1,0 +1,1 @@
+alias genpage="./scripts/generate-page.sh"
