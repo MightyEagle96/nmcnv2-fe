@@ -1,16 +1,15 @@
 import logo from "../../assets/logo.png";
 import { Button, TextField, Typography } from "@mui/material";
-import { Login, Password } from "@mui/icons-material";
+import { Login } from "@mui/icons-material";
 import React, { useState } from "react";
 import { httpService } from "../../httpService";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+
 import type { AxiosError } from "axios";
 const LoginPage = () => {
   const [user, setUser] = useState({});
   const [loading, setLoading] = useState(false);
 
-  const navigate = useNavigate();
   const loginUser = async (e: React.FormEvent) => {
     e.preventDefault();
 
