@@ -25,6 +25,7 @@ import {
 import { accountRoles } from "../pages/public/SignupPage";
 import { httpService } from "../httpService";
 import type { AxiosError } from "axios";
+import { Link } from "react-router-dom";
 
 function SideMenuComponents() {
   const { user } = useAppUser();
@@ -88,7 +89,7 @@ function SideMenuComponents() {
             }
           >
             {links.map((c) => (
-              <ListItemButton>
+              <ListItemButton component={Link} to={c.path}>
                 <ListItemIcon>
                   <c.icon />
                 </ListItemIcon>
@@ -113,7 +114,7 @@ function SideMenuComponents() {
             }
           >
             {caosceLinks.map((c) => (
-              <ListItemButton>
+              <ListItemButton component={Link} to={c.path}>
                 <ListItemIcon>
                   <c.icon />
                 </ListItemIcon>

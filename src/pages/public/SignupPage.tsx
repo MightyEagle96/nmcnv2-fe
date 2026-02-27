@@ -7,6 +7,7 @@ import Swal from "sweetalert2";
 import { httpService } from "../../httpService";
 import type { AxiosError } from "axios";
 import { toast } from "react-toastify";
+import { toastError } from "../../components/ErrorToast";
 
 export const accountRoles = {
   admin: "admin",
@@ -55,11 +56,7 @@ const SignupPage = () => {
             }, 3000);
           }
         } catch (err) {
-          const error = err as AxiosError;
-
-          if (error.response?.data) {
-            toast.error(error.response?.data as string);
-          }
+          toastError(err);
         } finally {
           setLoading(false);
         }

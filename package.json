@@ -9,14 +9,16 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "genpage": "bash scripts/generate-page.sh",
-    "copy-build": "cpx \"build/**/*\" ../backend/dist/build"
+    "copy-build": "cpx \"dist/**/*\" ../backend/dist/build"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@fontsource/roboto": "^5.2.10",
     "@mui/icons-material": "^7.3.8",
+    "@mui/lab": "^7.0.1-beta.22",
     "@mui/material": "^7.3.8",
+    "@mui/x-data-grid": "^8.27.3",
     "axios": "^1.13.5",
     "bootstrap": "^5.3.8",
     "react": "^19.2.0",

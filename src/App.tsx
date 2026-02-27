@@ -6,12 +6,18 @@ import "@fontsource/roboto/700.css";
 import { AppUserProvider } from "./context/AppUserContext";
 import MainRoutes from "./routes/MainRoutes";
 import { ToastContainer } from "react-toastify";
+import { RefreshProvider } from "./context/RefreshContext";
+import { LoadingProvider } from "./context/LoadingContext";
 
 function App() {
   return (
     <AppUserProvider>
-      <MainRoutes />
-      <ToastContainer />
+      <RefreshProvider>
+        <LoadingProvider>
+          <MainRoutes />
+          <ToastContainer />
+        </LoadingProvider>
+      </RefreshProvider>
     </AppUserProvider>
   );
 }

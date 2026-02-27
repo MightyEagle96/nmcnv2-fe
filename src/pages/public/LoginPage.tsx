@@ -3,9 +3,8 @@ import { Button, TextField, Typography } from "@mui/material";
 import { Login } from "@mui/icons-material";
 import React, { useState } from "react";
 import { httpService } from "../../httpService";
-import { toast } from "react-toastify";
 
-import type { AxiosError } from "axios";
+import { toastError } from "../../components/ErrorToast";
 const LoginPage = () => {
   const [user, setUser] = useState({});
   const [loading, setLoading] = useState(false);
@@ -20,11 +19,7 @@ const LoginPage = () => {
         window.location.href = "/";
       }
     } catch (err) {
-      const error = err as AxiosError;
-
-      if (error.response?.data) {
-        toast.error(error.response?.data as string);
-      }
+      toastError(err);
     } finally {
       setLoading(false);
     }
@@ -44,6 +39,7 @@ const LoginPage = () => {
         <form onSubmit={loginUser}>
           <div className="mb-3">
             <TextField
+              required
               fullWidth
               label="Username"
               onChange={(e) => setUser({ ...user, username: e.target.value })}
@@ -51,6 +47,7 @@ const LoginPage = () => {
           </div>
           <div className="mb-3">
             <TextField
+              required
               fullWidth
               type="password"
               label="Password"
