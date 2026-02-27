@@ -5,7 +5,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { httpService } from "../../httpService";
-import type { AxiosError } from "axios";
+
 import { toast } from "react-toastify";
 import { toastError } from "../../components/ErrorToast";
 

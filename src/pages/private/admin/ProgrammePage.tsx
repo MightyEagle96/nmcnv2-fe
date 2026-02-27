@@ -27,6 +27,7 @@ type IProgrammeData = {
   research: number;
   clientCare: number;
   expectantFamilyCare: number;
+  _id?: string;
 };
 
 type IComponent = {
@@ -83,7 +84,7 @@ function ProgrammePage() {
     pageSize: 50, // rows per page
   });
 
-  const { refresh } = useRefresh();
+  const { refresh, setRefresh } = useRefresh();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
@@ -151,39 +152,28 @@ function ProgrammePage() {
     }
   };
 
-  const deleteSubject = (id: string) => {
-    Swal.fire({
-      icon: "question",
-      title: "Delete Subject",
-      text: "Are you sure you want to delete this subject",
-      showCancelButton: true,
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          setLoading(true);
-          const { data } = await httpService.delete(`programme/delete/${id}`);
-          if (data) {
-            toast.success(data);
-            viewProgrammes();
-          }
-
-          setLoading(false);
-        } catch (error) {
-          toastError(error);
-        }
-        setLoading(false);
-      }
-    });
-  };
-
   useEffect(() => {
     viewProgrammes();
   }, [refresh]);
 
   const columns: GridColDef<ProgrammeRow>[] = [
     { field: "id", headerName: "S/N", width: 100 },
-    { field: "name", headerName: "Programme Name", width: 300 },
-    { field: "code", headerName: "Programme Code", width: 180 },
+    {
+      field: "name",
+      headerName: "Programme Name",
+      width: 300,
+      renderCell: (params) => (
+        <span style={{ textTransform: "capitalize" }}>{params.row.name}</span>
+      ),
+    },
+    {
+      field: "code",
+      headerName: "Programme Code",
+      width: 180,
+      renderCell: (params) => (
+        <span style={{ textTransform: "uppercase" }}>{params.row.code}</span>
+      ),
+    },
     ...components.map(
       (c): GridColDef<ProgrammeRow> => ({
         field: c.name,
@@ -303,11 +293,27 @@ function ProgrammePage() {
 export default ProgrammePage;
 
 type ActionMenuProps = {
-  row: any; // you can strongly type this later
+  row: IProgrammeData; // you can strongly type this later
 };
 
 function ActionMenu({ row }: ActionMenuProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [showEdit, setShowEdit] = useState(false);
+  const [errorCompute, setErrorCompute] = useState<string>("");
+
+  const { refresh, setRefresh } = useRefresh();
+
+  const { loading, setLoading } = useLoading();
+
+  const [programmeData, setProgrammeData] = useState<IProgrammeData>({
+    name: "",
+    code: "",
+    viva: 0,
+    procedure: 0,
+    research: 0,
+    clientCare: 0,
+    expectantFamilyCare: 0,
+  });
 
   const open = Boolean(anchorEl);
 
@@ -320,13 +326,93 @@ function ActionMenu({ row }: ActionMenuProps) {
   };
 
   const handleEdit = () => {
-    console.log("Edit row:", row);
+    // Initialize form with current row data
+    setProgrammeData({ ...row });
+    setShowEdit(true);
     handleClose();
   };
 
   const handleDelete = () => {
     console.log("Delete row:", row);
     handleClose();
+
+    Swal.fire({
+      icon: "question",
+      title: "Delete Programme",
+      text: "Are you sure you want to delete this programme?",
+      showCancelButton: true,
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          setLoading(true);
+          const { data } = await httpService.delete(
+            `programme/delete/${row._id}`,
+          );
+          if (data) {
+            toast.success(data);
+            setRefresh(!refresh);
+          }
+          setLoading(false);
+        } catch (error) {
+          toastError(error);
+        }
+      }
+    });
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type } = e.target;
+    const numericValue = type === "number" ? Number(value) : value;
+
+    setProgrammeData((prev) => {
+      const updated = { ...prev, [name]: numericValue };
+
+      // Compute total
+      const total = components.reduce(
+        (sum, c) => sum + Number(updated[c.name]),
+        0,
+      );
+
+      if (total > 100) {
+        setErrorCompute(`Total must not exceed 100. Current total is ${total}`);
+      } else {
+        setErrorCompute("");
+      }
+
+      return updated;
+    });
+  };
+
+  const editProgramme = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    Swal.fire({
+      icon: "question",
+      title: "Update this programme",
+      text: "Are you sure you want to update this programme?",
+      showCancelButton: true,
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        setLoading(true);
+
+        try {
+          const { data } = await httpService.patch(
+            "programme/update",
+            programmeData,
+          );
+
+          if (data) {
+            setRefresh(!refresh);
+            toast.success(data);
+
+            setShowEdit(false);
+          }
+        } catch (error) {
+          toastError(error);
+        }
+        setLoading(false);
+      }
+    });
   };
 
   return (
@@ -339,6 +425,69 @@ function ActionMenu({ row }: ActionMenuProps) {
         <MenuItem onClick={handleEdit}>Edit</MenuItem>
         <MenuItem onClick={handleDelete}>Delete</MenuItem>
       </Menu>
+
+      <Modal
+        show={showEdit}
+        onHide={() => setShowEdit(false)}
+        backdrop="static"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Edit Programme</Modal.Title>
+        </Modal.Header>
+
+        <form onSubmit={editProgramme}>
+          <Modal.Body className="p-4">
+            <div className="mb-3">
+              <TextField
+                fullWidth
+                onChange={handleChange}
+                label="Programme Name"
+                name="name"
+                required
+                value={programmeData.name}
+              />
+            </div>
+            <div className="mb-3">
+              <TextField
+                fullWidth
+                onChange={handleChange}
+                label="Programme Code"
+                name="code"
+                required
+                value={programmeData.code}
+              />
+            </div>
+
+            {components.map((c) => (
+              <div className="mb-3" key={c.name}>
+                <TextField
+                  fullWidth
+                  onChange={handleChange}
+                  label={c.label}
+                  name={c.name}
+                  required
+                  type="number"
+                  value={programmeData[c.name]}
+                />
+              </div>
+            ))}
+
+            {errorCompute && <Alert severity="error">{errorCompute}</Alert>}
+          </Modal.Body>
+
+          <Modal.Footer>
+            <LoadingButton
+              type="submit"
+              loading={loading}
+              loadingPosition="end"
+              variant="contained"
+              disabled={!!errorCompute}
+            >
+              Edit Programme
+            </LoadingButton>
+          </Modal.Footer>
+        </form>
+      </Modal>
     </>
   );
 }
