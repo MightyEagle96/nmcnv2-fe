@@ -4,6 +4,7 @@ import {
   CircularProgress,
   Stack,
   TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
@@ -16,13 +17,14 @@ import { Clear, Delete, Done } from "@mui/icons-material";
 
 import { toast } from "react-toastify";
 
-import { Link } from "react-router-dom";
 import type { AxiosError } from "axios";
 import { toastError, toastSuccess } from "../../../components/ErrorToast";
+import { DataGrid } from "@mui/x-data-grid";
+import { Link } from "react-router-dom";
 
 function ExaminationPage() {
-  const [selectedSubjects, setSelectedSubjects] = useState([]);
-  const [subjects, setSubjects] = useState([]);
+  const [selectedProgrammes, setSelectedProgrammes] = useState([]);
+  const [programmes, setProgrammes] = useState([]);
   const [examinations, setExaminations] = useState([]);
   const [show, setShow] = useState(false);
 
@@ -34,17 +36,18 @@ function ExaminationPage() {
     setLoading(true);
     const { data } = await httpService("cbt/view");
     if (data) {
-      setExaminations(data);
+      console.log(data);
+      setExaminations(data.examinations);
     }
     setLoading(false);
   };
 
-  const getSubjects = async () => {
+  const getProgrammes = async () => {
     try {
-      const { data } = await httpService("subject/view");
+      const { data } = await httpService("programme/view");
 
       if (data) {
-        setSubjects(data);
+        setProgrammes(data.programmes);
       }
 
       // if (error) toast.error(error);
@@ -61,9 +64,11 @@ function ExaminationPage() {
 
   const selectSubject = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {
-      setSelectedSubjects([...selectedSubjects, e.target.value]);
+      setSelectedProgrammes([...selectedProgrammes, e.target.value]);
     } else {
-      setSelectedSubjects(selectedSubjects.filter((c) => c !== e.target.value));
+      setSelectedProgrammes(
+        selectedProgrammes.filter((c) => c !== e.target.value),
+      );
     }
   };
 
@@ -75,11 +80,11 @@ function ExaminationPage() {
         text: "Please enter a name for this examination",
       });
 
-    if (selectedSubjects.length === 0)
+    if (selectedProgrammes.length === 0)
       return Swal.fire({
         icon: "warning",
         title: "No subject selected",
-        text: "Please select subjects for this examination",
+        text: "Please select programmes for this examination",
       });
 
     Swal.fire({
@@ -92,7 +97,7 @@ function ExaminationPage() {
         try {
           const { data } = await httpService.post("cbt/create", {
             ...examination,
-            subjects: selectedSubjects,
+            programmes: selectedProgrammes,
           });
 
           if (data) {
@@ -112,9 +117,122 @@ function ExaminationPage() {
   };
   useEffect(() => {
     getExaminations();
-    //getPrograms();
-    getSubjects();
+
+    getProgrammes();
   }, []);
+
+  const columns = [
+    {
+      field: "id",
+      headerName: "S/N",
+      width: 70,
+    },
+    {
+      field: "name",
+      headerName: "Name",
+      width: 200,
+      renderCell: (params: any) => {
+        return (
+          <Tooltip title={params.row.name}>
+            <span
+              style={{
+                display: "block",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                maxWidth: "100%",
+                textTransform: "uppercase",
+              }}
+            >
+              {params.row.name}
+            </span>
+          </Tooltip>
+        );
+      },
+    },
+    {
+      field: "programmes",
+      headerName: "Programmes",
+      width: 400,
+      renderCell: (params: any) => {
+        const programmesString = params.row.programmes
+          .map((p: any) => p.name.toUpperCase())
+          .join(", ");
+
+        return (
+          <Tooltip title={programmesString}>
+            <span
+              style={{
+                display: "block",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                maxWidth: "100%",
+              }}
+            >
+              {programmesString}
+            </span>
+          </Tooltip>
+        );
+      },
+    },
+
+    {
+      field: "active",
+      headerName: "Active",
+      width: 100,
+      renderCell: (params: any) => {
+        return params.row.active ? (
+          <Done color="success" />
+        ) : (
+          <Clear color="error" />
+        );
+      },
+    },
+    {
+      field: "candidates",
+      headerName: "Candidates",
+      width: 100,
+      renderCell: (params: any) => <Button>view</Button>,
+    },
+    {
+      field: "schedule",
+      headerName: "Schedule",
+      width: 100,
+      renderCell: (params: any) => (
+        <Button component={Link} to={`/schedule?examination=${params.row._id}`}>
+          view
+        </Button>
+      ),
+    },
+
+    {
+      field: "sessions",
+      headerName: "Sessions",
+      width: 100,
+      renderCell: (params: any) => (
+        <Button component={Link} to={`/schedule?examination=${params.row._id}`}>
+          view
+        </Button>
+      ),
+    },
+    {
+      field: "results",
+      headerName: "Results",
+      width: 100,
+      renderCell: (params: any) => <Button>view</Button>,
+    },
+    {
+      field: "delete",
+      headerName: "Delete",
+      width: 100,
+      renderCell: (params: any) => {
+        return (
+          <DeleteExam id={params.row.id} getExaminations={getExaminations} />
+        );
+      },
+    },
+  ];
 
   return (
     <div>
@@ -141,7 +259,7 @@ function ExaminationPage() {
             </div>
           </Stack>
         </div>
-        <Table bordered>
+        {/* <Table bordered>
           <thead className="">
             <tr className="text-center text-uppercase fw-700">
               <th>S/N</th>
@@ -173,7 +291,7 @@ function ExaminationPage() {
                 </td>
                 <td className="col-lg-5">
                   <div className="row">
-                    {c.subjects.map((d, j) => (
+                    {c.programmes.map((d: any, j: number) => (
                       <div className="col-lg-3 m-1">
                         <div>
                           <Typography
@@ -238,16 +356,19 @@ function ExaminationPage() {
               </tr>
             ))}
           </tbody>
-        </Table>
+        </Table> */}
+
+        <DataGrid rows={examinations} columns={columns} loading={loading} />
       </div>
       <Modal
         centered
         onHide={() => {
           setShow(!show);
-          setSelectedSubjects([]);
+          setSelectedProgrammes([]);
         }}
         show={show}
         size="xl"
+        backdrop="static"
       >
         <Modal.Header closeButton>
           <Modal.Title>Create a new examination</Modal.Title>
@@ -278,7 +399,7 @@ function ExaminationPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {subjects.map((c: any, i) => (
+                    {programmes.map((c: any, i) => (
                       <tr key={i}>
                         <td>
                           <small>{i + 1}</small>
@@ -307,7 +428,8 @@ function ExaminationPage() {
             >
               <div>
                 <Typography>
-                  Selected programs: <strong>{selectedSubjects.length}</strong>
+                  Selected programs:{" "}
+                  <strong>{selectedProgrammes.length}</strong>
                 </Typography>
               </div>
               <div>

@@ -84,7 +84,7 @@ function ProgrammePage() {
     pageSize: 50, // rows per page
   });
 
-  const { refresh, setRefresh } = useRefresh();
+  const { refresh } = useRefresh();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;

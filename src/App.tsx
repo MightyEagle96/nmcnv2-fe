@@ -8,16 +8,20 @@ import MainRoutes from "./routes/MainRoutes";
 import { ToastContainer } from "react-toastify";
 import { RefreshProvider } from "./context/RefreshContext";
 import { LoadingProvider } from "./context/LoadingContext";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 function App() {
   return (
     <AppUserProvider>
-      <RefreshProvider>
-        <LoadingProvider>
-          <MainRoutes />
-          <ToastContainer />
-        </LoadingProvider>
-      </RefreshProvider>
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <RefreshProvider>
+          <LoadingProvider>
+            <MainRoutes />
+            <ToastContainer />
+          </LoadingProvider>
+        </RefreshProvider>
+      </LocalizationProvider>
     </AppUserProvider>
   );
 }
