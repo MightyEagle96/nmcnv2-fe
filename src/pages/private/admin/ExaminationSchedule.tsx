@@ -21,11 +21,41 @@ import dayjs from "dayjs";
 import { useRefresh } from "../../../context/RefreshContext";
 import { toastError } from "../../../components/ErrorToast";
 
+type ICbtExamination = {
+  name: string;
+  programmes: IProgramme[];
+  dateCreated: Date;
+  active: boolean;
+  concluded: boolean;
+  questionBanks: IQuestionBank[];
+  duration: number;
+  scheduledTime: Date;
+  downloadTime: Date;
+};
+
+type IProgramme = {
+  _id: string;
+  name: string;
+  code: string;
+  viva: number;
+  procedure: number;
+  research: number;
+  clientCare: number;
+  expectantFamilyCare: number;
+};
+
+interface IQuestionBank {
+  programme: string;
+  isTaken: boolean;
+  dateCreated: Date;
+  questions: [];
+  dateTaken: Date;
+}
 function ExaminationSchedule() {
   const [params] = useSearchParams();
 
   const examinationId = params.get("examination");
-  const [examination, setExamination] = useState(null);
+  const [examination, setExamination] = useState<ICbtExamination | null>(null);
 
   const [duration, setDuration] = useState({
     hours: 0,
@@ -39,8 +69,8 @@ function ExaminationSchedule() {
   const [updatingDownloadTime, setUpdatingDownloadTime] = useState(false);
   const [updatingExamTime, setUpdatingExamTime] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [downloadAt, setDownloadAt] = useState(null);
-  const [examBeginAt, setExamBeginAt] = useState(null);
+  const [downloadAt, setDownloadAt] = useState<Date | null>(null);
+  const [examBeginAt, setExamBeginAt] = useState<Date | null>(null);
 
   const getData = async () => {
     const { data } = await httpService(`/cbt/viewsingle?_id=${examinationId}`);
@@ -136,29 +166,29 @@ function ExaminationSchedule() {
 
   const durationSet = examination && examination.duration > 0 ? true : false;
 
-  const concludePaper = () => {
-    Swal.fire({
-      icon: "question",
-      title: "Conclude Paper",
-      text: "This will end this paper",
-      showCancelButton: true,
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        const { data, error } = await httpService
-          .get
-          // `cbt/concludepaper/${paperType}`
-          ();
+  // const concludePaper = () => {
+  //   Swal.fire({
+  //     icon: "question",
+  //     title: "Conclude Paper",
+  //     text: "This will end this paper",
+  //     showCancelButton: true,
+  //   }).then(async (result) => {
+  //     if (result.isConfirmed) {
+  //       const { data, error } = await httpService
+  //         .get
+  //         // `cbt/concludepaper/${paperType}`
+  //         ();
 
-        if (data) {
-          toast.success(data);
-          setRefresh(!refresh);
-        }
-        if (error) {
-          toast.error(error);
-        }
-      }
-    });
-  };
+  //       if (data) {
+  //         toast.success(data);
+  //         setRefresh(!refresh);
+  //       }
+  //       if (error) {
+  //         toast.error(error);
+  //       }
+  //     }
+  //   });
+  // };
 
   const activateExam = () => {
     Swal.fire({
@@ -168,22 +198,18 @@ function ExaminationSchedule() {
     }).then(async (result) => {
       if (result.isConfirmed) {
         setLoading(true);
-        const { data, error } = await httpService.patch(
-          "examination/toggleactive",
-          {
-            examination: id,
-            active: !examination.active,
-          },
-        );
-        //`cbt/activatepaper/${paperType}`
+        try {
+          const { data } = await httpService.patch("examination/toggleactive", {
+            examination: examinationId,
+            active: !examination?.active,
+          });
 
-        if (data) {
-          setRefresh(!refresh);
-          toast.success(data);
-        }
-
-        if (error) {
-          toast.error(error);
+          if (data) {
+            setRefresh(!refresh);
+            toast.success(data);
+          }
+        } catch (error) {
+          toastError(error);
         }
         setLoading(false);
       }
@@ -478,7 +504,7 @@ function ExaminationSchedule() {
 
 export default ExaminationSchedule;
 
-function GetQuestionBank({ programme, getSchedule, examination }) {
+function GetQuestionBank({ programme, getSchedule, examination }: any) {
   const [loading, setLoading] = useState(false);
   const [show, setShow] = useState(false);
   const [questionBanks, setQuestionBanks] = useState([]);
@@ -528,7 +554,7 @@ function GetQuestionBank({ programme, getSchedule, examination }) {
             viewQuestionBankStatus();
             getSchedule();
             setBankIndex(0);
-            setSelectedBank([]);
+            setSelectedBank("");
             setShow(false);
             toast.success(data);
           }
@@ -549,7 +575,6 @@ function GetQuestionBank({ programme, getSchedule, examination }) {
     }
   };
 
-  const navigate = useNavigate();
   useEffect(() => {
     viewQuestionBankStatus();
   }, []);

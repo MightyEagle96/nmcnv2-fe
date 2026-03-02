@@ -48,7 +48,7 @@ const AuthoringPage = () => {
       </div>
       <div className="col-lg-5">
         <div>
-          <label for="testform" className="form-label">
+          <label htmlFor="testform" className="form-label">
             Select a word document
           </label>
           <input
