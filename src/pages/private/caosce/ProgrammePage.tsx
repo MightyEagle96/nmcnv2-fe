@@ -1,16 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { toastError } from "../../../components/ErrorToast";
 import { httpService } from "../../../httpService";
-import { useSearchParams } from "react-router-dom";
-import { Button, Divider, TextField, Typography } from "@mui/material";
+import { Link, useSearchParams } from "react-router-dom";
+import { Alert, Button, Divider, TextField, Typography } from "@mui/material";
 import { Modal } from "react-bootstrap";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
-import { AdUnits, PlusOne } from "@mui/icons-material";
+import { PlusOne } from "@mui/icons-material";
+import { DataGrid } from "@mui/x-data-grid";
+import { useRefresh } from "../../../context/RefreshContext";
 
 function ProgrammePage() {
   const [params] = useSearchParams();
   const [programmeData, setProgrammeData] = useState(null);
+  const [programmeProcedures, setProgrammeProcedures] = useState([]);
   const [show, setShow] = useState(false);
   const [creating, setCreating] = useState(false);
   const [procedureData, setProcedureData] = useState({
@@ -21,6 +24,8 @@ function ProgrammePage() {
   const [codeError, setCodeError] = useState("");
 
   const [nameError, setNameError] = useState("");
+
+  const { refresh, setRefresh } = useRefresh();
 
   const _id = params.get("id");
   const viewProgramme = async () => {
@@ -37,9 +42,25 @@ function ProgrammePage() {
     }
   };
 
+  const viewProgrammeProcedures = async () => {
+    try {
+      const { data } = await httpService("caosce/programmeprocedures", {
+        params: { _id },
+      });
+      if (data) {
+        setProgrammeProcedures(data);
+        console.log(data);
+      }
+    } catch (error) {
+      toastError(error);
+    }
+  };
+
   useEffect(() => {
-    viewProgramme();
-  }, []);
+    if (_id) {
+      Promise.all([viewProgramme(), viewProgrammeProcedures()]);
+    }
+  }, [_id, refresh]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,6 +81,8 @@ function ProgrammePage() {
           viewProgramme();
           toast.success(data);
 
+          setRefresh(!refresh);
+
           setProcedureData({
             name: "",
             code: "",
@@ -72,22 +95,75 @@ function ProgrammePage() {
       }
     });
   };
+
+  const columns = [
+    { field: "id", headerName: "ID", width: 100 },
+    {
+      field: "name",
+      headerName: "Name",
+      width: 300,
+      renderCell: (params: any) => (
+        <span style={{ textTransform: "uppercase" }}>{params.row.name}</span>
+      ),
+    },
+    {
+      field: "code",
+      headerName: "Code",
+      width: 300,
+      renderCell: (params: any) => (
+        <span style={{ textTransform: "uppercase" }}>{params.row.code}</span>
+      ),
+    },
+    {
+      field: "itemCount",
+      headerName: "Items",
+      width: 300,
+      renderCell: (params) => (
+        <Typography
+          sx={{ textDecoration: "none", fontSize: 14 }}
+          component={Link}
+          to={`/caosce/items?id=${params.row._id}`}
+        >
+          <span>{params.row.itemCount}</span>
+        </Typography>
+      ),
+    },
+    {
+      field: "activityCount",
+      headerName: "Activities",
+      width: 300,
+      renderCell: (params) => (
+        <Typography
+          sx={{ textDecoration: "none", fontSize: 14 }}
+          component={Link}
+          to={`/caosce/activities?id=${params.row._id}`}
+        >
+          <span>{params.row.itemCount}</span>
+        </Typography>
+      ),
+    },
+    { field: "maxScore", headerName: "Max Score", width: 300 },
+  ];
   return (
     <div>
       {programmeData && (
         <div>
-          <div className="d-flex justify-content-between">
+          <div className="d-flex justify-content-between mb-4">
             <div>
               <Typography
                 gutterBottom
                 variant="h5"
-                textTransform={"capitalize"}
+                textTransform={"uppercase"}
+                fontWeight={700}
               >
                 {" "}
                 {programmeData.name}
               </Typography>
             </div>
-            <div>
+            <div className="col-lg-3">
+              <Alert severity="info">
+                MAX PROCEDURE SCORE: <b>{programmeData.procedure}</b>
+              </Alert>
               <Button onClick={() => setShow(!show)}>add new prodedure</Button>
             </div>
           </div>
@@ -124,6 +200,21 @@ function ProgrammePage() {
                   </Typography>
                 </div>
               </div>
+            </div>
+          </div>
+
+          <div className="mt-5">
+            <div
+              // className="p-3 rounded border"
+              style={{ height: "50vh", overflow: "scroll" }}
+            >
+              <DataGrid
+                rows={programmeProcedures}
+                columns={columns}
+                rowCount={programmeProcedures.length}
+                // pageSize={5}
+                // rowsPerPageOptions={[5]}
+              />
             </div>
           </div>
         </div>
