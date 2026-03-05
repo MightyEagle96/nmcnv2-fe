@@ -152,7 +152,7 @@ function ProgrammePage() {
             <div>
               <Typography
                 gutterBottom
-                variant="h5"
+                variant="h4"
                 textTransform={"uppercase"}
                 fontWeight={700}
               >
@@ -169,7 +169,7 @@ function ProgrammePage() {
           </div>
           <div className="border rounded">
             <div className="p-3">
-              <div className="row fw-bold">
+              <div className="row fw-bold text-muted">
                 <div className="col-lg-3">
                   <Typography variant="body2">Procedures</Typography>
                 </div>
