@@ -21,6 +21,7 @@ import type { AxiosError } from "axios";
 import { toastError, toastSuccess } from "../../../components/ErrorToast";
 import { DataGrid } from "@mui/x-data-grid";
 import { Link } from "react-router-dom";
+import { useRefresh } from "../../../context/RefreshContext";
 
 function ExaminationPage() {
   const [selectedProgrammes, setSelectedProgrammes] = useState([]);
@@ -31,6 +32,8 @@ function ExaminationPage() {
   const [examination, setExamination] = useState({});
 
   const [loading, setLoading] = useState(false);
+
+  const { refresh } = useRefresh();
 
   const getExaminations = async () => {
     setLoading(true);
@@ -119,7 +122,7 @@ function ExaminationPage() {
     getExaminations();
 
     getProgrammes();
-  }, []);
+  }, [refresh]);
 
   const columns = [
     {
@@ -225,10 +228,10 @@ function ExaminationPage() {
     {
       field: "delete",
       headerName: "Delete",
-      width: 100,
+      width: 200,
       renderCell: (params: any) => {
         return (
-          <DeleteExam id={params.row.id} getExaminations={getExaminations} />
+          <DeleteExam id={params.row._id} getExaminations={getExaminations} />
         );
       },
     },
@@ -451,8 +454,10 @@ function ExaminationPage() {
 
 export default ExaminationPage;
 
-function DeleteExam({ id, getExaminations }: any) {
+function DeleteExam({ id }: any) {
   const [loading, setLoading] = useState(false);
+
+  const { refresh, setRefresh } = useRefresh();
   const deleteExam = () => {
     Swal.fire({
       icon: "question",
@@ -465,18 +470,19 @@ function DeleteExam({ id, getExaminations }: any) {
       if (result.isConfirmed) {
         setLoading(true);
 
+        console.log({ deleteId: id });
+
         try {
           const { data } = await httpService.delete(`cbt/delete/${id}`);
 
           if (data) {
-            getExaminations();
+            setRefresh(!refresh);
             toast.success(data);
           }
-
-          setLoading(false);
         } catch (error) {
           toastError(error);
         }
+        setLoading(false);
       }
     });
   };

@@ -15,6 +15,7 @@ import {
   Book,
   Dashboard,
   Edit,
+  Home,
   Logout,
   People,
   Person,
@@ -43,7 +44,8 @@ function SideMenuComponents() {
   ];
 
   const caosceLinks = [
-    { path: "/programmes", name: "Programmes", icon: Book },
+    { path: "/caosce", name: "Home", icon: Home },
+    { path: "/caosce/programmes", name: "Programmes", icon: Book },
     { path: "/procedures", name: "Procedures", icon: Biotech },
     { path: "/examination", name: "Examination", icon: Edit },
     { path: "/activityscore", name: "Activity Scores", icon: Scoreboard },

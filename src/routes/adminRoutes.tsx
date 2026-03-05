@@ -6,6 +6,7 @@ import ExaminationSchedule from "../pages/private/admin/ExaminationSchedule";
 import ProgrammePage from "../pages/private/admin/ProgrammePage";
 import Dashboard from "../pages/private/Dashboard";
 import Server from "../pages/private/server/Server";
+import CaosceRoutes from "./CaosceRoutes";
 
 export const adminRoutes = [
   { path: "/", component: Dashboard },
@@ -15,5 +16,6 @@ export const adminRoutes = [
   { path: "/programmes", component: ProgrammePage },
   { path: "/authoringtool", component: AuthoringPage },
   { path: "/authoringtool/result", component: ConvertedPage },
+  { path: "/caosce/*", component: CaosceRoutes },
   { path: "*", component: NotFound },
 ];

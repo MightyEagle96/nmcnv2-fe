@@ -1,7 +1,14 @@
+import { Typography } from "@mui/material";
+
 const CaosceAdminPage = () => {
   return (
     <div>
-      <h1>CaosceAdminPage Page</h1>
+      <div className="mb-4">
+        <Typography variant="h4" fontWeight={700}>
+          CAOSCE
+        </Typography>
+      </div>
+      <div className="b-4"></div>
     </div>
   );
 };
