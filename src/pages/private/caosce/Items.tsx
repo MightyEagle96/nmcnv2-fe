@@ -1,5 +1,4 @@
 import { Typography } from "@mui/material";
-import React from "react";
 import { ApplicationNavigation } from "../../../routes/CaosceRoutes";
 import { useSearchParams } from "react-router-dom";
 
@@ -27,10 +26,10 @@ function Items() {
           links={[
             {
               path: `/caosce/programme?id=${query.programme}`,
-              name: query?.programmename,
+              name: query?.programmename?.toLocaleUpperCase(),
             },
           ]}
-          pageTitle={query?.procedure}
+          pageTitle={query?.procedure?.toLocaleUpperCase()}
         />
       </div>
     </div>
