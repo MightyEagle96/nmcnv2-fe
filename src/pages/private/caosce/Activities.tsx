@@ -1,5 +1,13 @@
-import { Button, MenuItem, TextField, Typography } from "@mui/material";
+import {
+  Button,
+  Divider,
+  IconButton,
+  MenuItem,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { ApplicationNavigation } from "../../../routes/CaosceRoutes";
+import { Menu } from "@mui/icons-material";
 import { useSearchParams } from "react-router-dom";
 import { Modal } from "react-bootstrap";
 import { useEffect, useState } from "react";
@@ -12,6 +20,9 @@ function Activities() {
   const [params] = useSearchParams();
   const [creating, setCreating] = useState(false);
   const [show, setShow] = useState(false);
+  const [activities, setActivities] = useState<
+    { activity: string; score: number }[]
+  >([]);
 
   const [activity, setActivity] = useState({
     activity: "",
@@ -62,6 +73,9 @@ function Activities() {
         `/caosce/procedureactivities/${query.id}`,
       );
 
+      if (data) {
+        setActivities(data);
+      }
       console.log(data);
     } catch (error) {
       toastError(error);
@@ -99,6 +113,41 @@ function Activities() {
         >
           Add new activity
         </Button>
+      </div>
+      <div>
+        <div className="row">
+          <div className="col-lg-2">
+            <Typography variant="h6">S.No</Typography>
+          </div>
+          <div className="col-lg-5">
+            <Typography variant="h6">Activity</Typography>
+          </div>
+          <div className="col-lg-2">
+            <Typography variant="h6">Score</Typography>
+          </div>
+          <div className="col-lg-2">
+            <Typography variant="h6">Modify</Typography>
+          </div>
+        </div>
+        <Divider />
+        {activities.map((c, i) => (
+          <div className="row py-2 border-bottom d-flex align-items-center">
+            <div className="col-lg-2">
+              <Typography>{i + 1}</Typography>
+            </div>
+            <div className="col-lg-5">
+              <Typography>{c.activity}</Typography>
+            </div>
+            <div className="col-lg-2">
+              <Typography>{c.score}</Typography>
+            </div>
+            <div className="col-lg-2">
+              <IconButton>
+                <Menu />
+              </IconButton>
+            </div>
+          </div>
+        ))}
       </div>
       <Modal
         size="xl"
