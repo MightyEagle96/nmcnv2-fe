@@ -10,11 +10,33 @@ import { PlusOne } from "@mui/icons-material";
 import { DataGrid } from "@mui/x-data-grid";
 import { useRefresh } from "../../../context/RefreshContext";
 
+type IProgrammeData = {
+  name: string;
+  code: string;
+  viva: number;
+  procedure: number;
+  research: number;
+  clientCare: number;
+  expectantFamilyCare: number;
+  _id?: string;
+  itemCount: number;
+  activityCount: number;
+  procedureCount: number;
+};
+
 function ProgrammePage() {
   const [params] = useSearchParams();
-  const [programmeData, setProgrammeData] = useState({
+  const [programmeData, setProgrammeData] = useState<IProgrammeData>({
     name: "",
     code: "",
+    viva: 0,
+    procedure: 0,
+    research: 0,
+    clientCare: 0,
+    expectantFamilyCare: 0,
+    itemCount: 0,
+    activityCount: 0,
+    procedureCount: 0,
   });
   const [programmeProcedures, setProgrammeProcedures] = useState([]);
   const [show, setShow] = useState(false);
@@ -121,7 +143,7 @@ function ProgrammePage() {
       field: "itemCount",
       headerName: "Items",
       width: 300,
-      renderCell: (params) => (
+      renderCell: (params: any) => (
         <Typography
           sx={{ textDecoration: "none", fontSize: 14 }}
           component={Link}
@@ -135,13 +157,13 @@ function ProgrammePage() {
       field: "activityCount",
       headerName: "Activities",
       width: 300,
-      renderCell: (params) => (
+      renderCell: (params: any) => (
         <Typography
           sx={{ textDecoration: "none", fontSize: 14 }}
           component={Link}
-          to={`/caosce/activities?id=${params.row._id}`}
+          to={`/caosce/activities?id=${params.row._id}&procedure=${params.row.name}&programme=${_id}&programmename=${programmeData?.name}`}
         >
-          <span>{params.row.itemCount}</span>
+          <span>{params.row.activityCount}</span>
         </Typography>
       ),
     },

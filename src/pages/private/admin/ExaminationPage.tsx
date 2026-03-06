@@ -8,7 +8,7 @@ import {
   Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import { Modal, Nav, Table } from "react-bootstrap";
+import { Modal, Table } from "react-bootstrap";
 import { httpService } from "../../../httpService";
 
 import { LoadingButton } from "@mui/lab";
@@ -223,7 +223,11 @@ function ExaminationPage() {
       field: "results",
       headerName: "Results",
       width: 100,
-      renderCell: (params: any) => <Button>view</Button>,
+      renderCell: (params: any) => (
+        <Button component={Link} to={`/results?examination=${params.row._id}`}>
+          view
+        </Button>
+      ),
     },
     {
       field: "delete",

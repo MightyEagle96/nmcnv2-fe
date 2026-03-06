@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { httpService } from "../../../httpService";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import {
   Typography,
   Chip,
@@ -216,7 +216,7 @@ function ExaminationSchedule() {
     });
   };
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setDuration((prev) => ({
       ...prev,
@@ -301,7 +301,7 @@ function ExaminationSchedule() {
                     value={downloadAt}
                     onChange={setDownloadAt}
                     minDate={dayjs()}
-                    renderInput={(params) => (
+                    renderInput={(params: any) => (
                       <TextField {...params} fullWidth />
                     )}
                   />
@@ -329,13 +329,13 @@ function ExaminationSchedule() {
                     value={examBeginAt}
                     onChange={setExamBeginAt}
                     minDate={dayjs()}
-                    renderInput={(params) => (
+                    renderInput={(params: any) => (
                       <TextField {...params} fullWidth />
                     )}
                   />
                   <LoadingButton
                     className="ms-3"
-                    loading={updatingDownloadTime}
+                    loading={updatingExamTime}
                     onClick={updateExamTime}
                   >
                     update
@@ -623,7 +623,7 @@ function GetQuestionBank({ programme, getSchedule, examination }: any) {
                   </td>
                 </tr>
               )}
-              {questionBanks.map((c, i) => (
+              {questionBanks.map((c: any, i) => (
                 <tr>
                   <td>{i + 1}</td>
                   <td>{c.questions}</td>

@@ -22,15 +22,17 @@ function Items() {
         </Typography>
       </div>
       <div>
-        <ApplicationNavigation
-          links={[
-            {
-              path: `/caosce/programme?id=${query.programme}`,
-              name: query?.programmename?.toLocaleUpperCase(),
-            },
-          ]}
-          pageTitle={query?.procedure?.toLocaleUpperCase()}
-        />
+        {query && (
+          <ApplicationNavigation
+            links={[
+              {
+                path: `/caosce/programme?id=${query.programme}`,
+                name: query?.programmename?.toLocaleUpperCase() || "",
+              },
+            ]}
+            pageTitle={query?.procedure?.toLocaleUpperCase() || ""}
+          />
+        )}
       </div>
     </div>
   );

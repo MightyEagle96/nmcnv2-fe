@@ -13,7 +13,6 @@ function CaosceProgrammes() {
 
       if (data) {
         setProgrammes(data);
-        console.log(data);
       }
     } catch (error) {
       toastError(error);

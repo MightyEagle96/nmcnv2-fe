@@ -70,6 +70,9 @@ function SideMenuComponents() {
       setLoading(false);
     }
   };
+
+  const linkFontSize = 14;
+  const iconFontSize = 22;
   return (
     <div>
       <div className="bg-dark text-white rounded text-center p-3">
@@ -92,11 +95,18 @@ function SideMenuComponents() {
             }
           >
             {links.map((c) => (
-              <ListItemButton component={Link} to={c.path}>
+              <ListItemButton
+                component={Link}
+                to={c.path}
+                sx={{ fontSize: 10 }}
+              >
                 <ListItemIcon>
-                  <c.icon />
+                  <c.icon sx={{ fontSize: iconFontSize }} />
                 </ListItemIcon>
-                <ListItemText primary={c.name} />
+                <ListItemText
+                  primary={c.name}
+                  primaryTypographyProps={{ fontSize: linkFontSize }}
+                />
               </ListItemButton>
             ))}
           </List>
@@ -119,9 +129,12 @@ function SideMenuComponents() {
             {caosceLinks.map((c) => (
               <ListItemButton component={Link} to={c.path}>
                 <ListItemIcon>
-                  <c.icon />
+                  <c.icon sx={{ fontSize: iconFontSize }} />
                 </ListItemIcon>
-                <ListItemText primary={c.name} />
+                <ListItemText
+                  primary={c.name}
+                  primaryTypographyProps={{ fontSize: linkFontSize }}
+                />
               </ListItemButton>
             ))}
           </List>
