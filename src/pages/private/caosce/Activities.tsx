@@ -32,6 +32,7 @@ function Activities() {
     score: "",
   });
 
+  const { refresh } = useRefresh();
   // const data = params.getAll(["id", "name"]);
   const query = {
     id: params.get("id"),
@@ -87,7 +88,7 @@ function Activities() {
 
   useEffect(() => {
     getActivities();
-  }, []);
+  }, [refresh]);
   return (
     <div>
       <div className="mb-4">
@@ -108,7 +109,7 @@ function Activities() {
           />
         )}
       </div>
-      <div className="text-end">
+      <div className="text-end mb-4">
         <Button
           onClick={() => setShow(!show)}
           variant="contained"
@@ -118,7 +119,7 @@ function Activities() {
         </Button>
       </div>
       <div className="p-4 rounded border">
-        <div className="row">
+        <div className="row mb-3">
           <div className="col-lg-1">
             <Typography variant="h6">S.No</Typography>
           </div>
@@ -240,6 +241,15 @@ function ActionMenu({ row }: any) {
   const { loading, setLoading } = useLoading();
   const [creating, setCreating] = useState(false);
 
+  const [params] = useSearchParams();
+
+  const query = {
+    id: params.get("id"),
+    procedure: params.get("procedure"),
+    programme: params.get("programme"),
+    programmename: params.get("programmename"),
+  };
+
   const [activity, setActivity] = useState<{
     activity: string;
     score: string;
@@ -298,62 +308,33 @@ function ActionMenu({ row }: any) {
     });
   };
 
-  // const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const { name, value, type } = e.target;
-
-  //   setActivity((prev) => {
-  //     const updated = { ...prev, [name]: numericValue };
-
-  //     // Compute total
-  //     const total = components.reduce(
-  //       (sum, c) => sum + Number(updated[c.name]),
-  //       0,
-  //     );
-
-  //     if (total > 100) {
-  //       setErrorCompute(`Total must not exceed 100. Current total is ${total}`);
-  //     } else {
-  //       setErrorCompute("");
-  //     }
-
-  //     return updated;
-  //   });
-  // };
-
-  // const editProgramme = (e: React.FormEvent<HTMLFormElement>) => {
-  //   e.preventDefault();
-
-  //   Swal.fire({
-  //     icon: "question",
-  //     title: "Update this programme",
-  //     text: "Are you sure you want to update this programme?",
-  //     showCancelButton: true,
-  //   }).then(async (result) => {
-  //     if (result.isConfirmed) {
-  //       setLoading(true);
-
-  //       try {
-  //         const { data } = await httpService.patch(
-  //           "programme/update",
-  //           programmeData,
-  //         );
-
-  //         if (data) {
-  //           setRefresh(!refresh);
-  //           toast.success(data);
-
-  //           setShowEdit(false);
-  //         }
-  //       } catch (error) {
-  //         toastError(error);
-  //       }
-  //       setLoading(false);
-  //     }
-  //   });
-  // };
-
   const editActivity = (e: React.FormEvent) => {
     e.preventDefault();
+
+    Swal.fire({
+      icon: "question",
+      title: "Update this activity",
+      text: "Are you sure you want to update this activity?",
+      showCancelButton: true,
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          setLoading(true);
+          const { data } = await httpService.patch(
+            `caosce/updateprocedureactivity?procedureId=${query.id}&activityId=${row._id}`,
+            activity,
+          );
+          if (data) {
+            toast.success(data);
+            setRefresh(!refresh);
+            setShowEdit(false);
+          }
+          setLoading(false);
+        } catch (error) {
+          toastError(error);
+        }
+      }
+    });
   };
   return (
     <>
@@ -386,6 +367,7 @@ function ActionMenu({ row }: any) {
                     setActivity({ ...activity, activity: e.target.value })
                   }
                   multiline
+                  value={activity.activity}
                   maxRows={3}
                   label="Activity"
                   fullWidth
@@ -397,6 +379,7 @@ function ActionMenu({ row }: any) {
                   <TextField
                     fullWidth
                     select
+                    value={activity.score}
                     label="Activity Score"
                     onChange={(e) =>
                       setActivity({ ...activity, score: e.target.value })
