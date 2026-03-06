@@ -12,7 +12,10 @@ import { useRefresh } from "../../../context/RefreshContext";
 
 function ProgrammePage() {
   const [params] = useSearchParams();
-  const [programmeData, setProgrammeData] = useState(null);
+  const [programmeData, setProgrammeData] = useState({
+    name: "",
+    code: "",
+  });
   const [programmeProcedures, setProgrammeProcedures] = useState([]);
   const [show, setShow] = useState(false);
   const [creating, setCreating] = useState(false);
@@ -122,7 +125,7 @@ function ProgrammePage() {
         <Typography
           sx={{ textDecoration: "none", fontSize: 14 }}
           component={Link}
-          to={`/caosce/items?id=${params.row._id}`}
+          to={`/caosce/items?id=${params.row._id}&procedure=${params.row.name}&programme=${_id}&programmename=${programmeData?.name}`}
         >
           <span>{params.row.itemCount}</span>
         </Typography>
