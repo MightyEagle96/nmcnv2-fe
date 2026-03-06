@@ -5,9 +5,10 @@ import {
   MenuItem,
   TextField,
   Typography,
+  Menu,
 } from "@mui/material";
 import { ApplicationNavigation } from "../../../routes/CaosceRoutes";
-import { Menu } from "@mui/icons-material";
+import { Menu as MenuIcon, MoreVert } from "@mui/icons-material";
 import { useSearchParams } from "react-router-dom";
 import { Modal } from "react-bootstrap";
 import { useEffect, useState } from "react";
@@ -15,6 +16,8 @@ import Swal from "sweetalert2";
 import { httpService } from "../../../httpService";
 import { toastError } from "../../../components/ErrorToast";
 import { toast } from "react-toastify";
+import { useRefresh } from "../../../context/RefreshContext";
+import { useLoading } from "../../../context/LoadingContext";
 
 function Activities() {
   const [params] = useSearchParams();
@@ -114,9 +117,9 @@ function Activities() {
           Add new activity
         </Button>
       </div>
-      <div>
+      <div className="p-4 rounded border">
         <div className="row">
-          <div className="col-lg-2">
+          <div className="col-lg-1">
             <Typography variant="h6">S.No</Typography>
           </div>
           <div className="col-lg-5">
@@ -125,6 +128,9 @@ function Activities() {
           <div className="col-lg-2">
             <Typography variant="h6">Score</Typography>
           </div>
+          <div className="col-lg-1">
+            <Typography variant="h6">Action</Typography>
+          </div>
           <div className="col-lg-2">
             <Typography variant="h6">Modify</Typography>
           </div>
@@ -132,18 +138,21 @@ function Activities() {
         <Divider />
         {activities.map((c, i) => (
           <div className="row py-2 border-bottom d-flex align-items-center">
-            <div className="col-lg-2">
-              <Typography>{i + 1}</Typography>
+            <div className="col-lg-1 border-end">
+              <Typography variant="body2">{i + 1}</Typography>
             </div>
-            <div className="col-lg-5">
-              <Typography>{c.activity}</Typography>
+            <div className="col-lg-5 border-end">
+              <Typography variant="body2">{c.activity}</Typography>
             </div>
-            <div className="col-lg-2">
-              <Typography>{c.score}</Typography>
+            <div className="col-lg-2 border-end">
+              <Typography variant="body2">{c.score}</Typography>
+            </div>
+            <div className="col-lg-1 border-end">
+              <ActionMenu row={c} getActivities={getActivities} />
             </div>
             <div className="col-lg-2">
               <IconButton>
-                <Menu />
+                <MenuIcon />
               </IconButton>
             </div>
           </div>
@@ -221,3 +230,201 @@ function Activities() {
 export default Activities;
 
 const activityScores = [0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
+
+function ActionMenu({ row }: any) {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [showEdit, setShowEdit] = useState(false);
+
+  const { refresh, setRefresh } = useRefresh();
+
+  const { loading, setLoading } = useLoading();
+  const [creating, setCreating] = useState(false);
+
+  const [activity, setActivity] = useState<{
+    activity: string;
+    score: string;
+  }>({
+    name: "",
+    code: "",
+    viva: 0,
+    procedure: 0,
+    research: 0,
+    clientCare: 0,
+    expectantFamilyCare: 0,
+  });
+
+  const open = Boolean(anchorEl);
+
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleEdit = () => {
+    // Initialize form with current row data
+    setActivity({ ...row });
+    setShowEdit(true);
+    handleClose();
+  };
+
+  const handleDelete = () => {
+    console.log("Delete row:", row);
+    handleClose();
+
+    Swal.fire({
+      icon: "question",
+      title: "Delete Programme",
+      text: "Are you sure you want to delete this programme?",
+      showCancelButton: true,
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          setLoading(true);
+          const { data } = await httpService.delete(
+            `programme/delete/${row._id}`,
+          );
+          if (data) {
+            toast.success(data);
+            setRefresh(!refresh);
+          }
+          setLoading(false);
+        } catch (error) {
+          toastError(error);
+        }
+      }
+    });
+  };
+
+  // const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const { name, value, type } = e.target;
+
+  //   setActivity((prev) => {
+  //     const updated = { ...prev, [name]: numericValue };
+
+  //     // Compute total
+  //     const total = components.reduce(
+  //       (sum, c) => sum + Number(updated[c.name]),
+  //       0,
+  //     );
+
+  //     if (total > 100) {
+  //       setErrorCompute(`Total must not exceed 100. Current total is ${total}`);
+  //     } else {
+  //       setErrorCompute("");
+  //     }
+
+  //     return updated;
+  //   });
+  // };
+
+  // const editProgramme = (e: React.FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
+
+  //   Swal.fire({
+  //     icon: "question",
+  //     title: "Update this programme",
+  //     text: "Are you sure you want to update this programme?",
+  //     showCancelButton: true,
+  //   }).then(async (result) => {
+  //     if (result.isConfirmed) {
+  //       setLoading(true);
+
+  //       try {
+  //         const { data } = await httpService.patch(
+  //           "programme/update",
+  //           programmeData,
+  //         );
+
+  //         if (data) {
+  //           setRefresh(!refresh);
+  //           toast.success(data);
+
+  //           setShowEdit(false);
+  //         }
+  //       } catch (error) {
+  //         toastError(error);
+  //       }
+  //       setLoading(false);
+  //     }
+  //   });
+  // };
+
+  const editActivity = (e: React.FormEvent) => {
+    e.preventDefault();
+  };
+  return (
+    <>
+      <IconButton onClick={handleClick}>
+        <MoreVert />
+      </IconButton>
+
+      <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
+        <MenuItem onClick={handleEdit}>Edit</MenuItem>
+        <MenuItem onClick={handleDelete}>Delete</MenuItem>
+      </Menu>
+
+      <Modal
+        show={showEdit}
+        onHide={() => setShowEdit(false)}
+        backdrop="static"
+        centered
+        size="xl"
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Edit Activity</Modal.Title>
+        </Modal.Header>
+
+        <form onSubmit={editActivity}>
+          <Modal.Body>
+            <div className="p-3">
+              <div className="mb-4">
+                <TextField
+                  onChange={(e) =>
+                    setActivity({ ...activity, activity: e.target.value })
+                  }
+                  multiline
+                  maxRows={3}
+                  label="Activity"
+                  fullWidth
+                  variant="outlined"
+                />
+              </div>
+              <div className="mb-4">
+                <div className="col-lg-3">
+                  <TextField
+                    fullWidth
+                    select
+                    label="Activity Score"
+                    onChange={(e) =>
+                      setActivity({ ...activity, score: e.target.value })
+                    }
+                  >
+                    {activityScores.map((value, i) => (
+                      <MenuItem key={i} value={value}>
+                        {" "}
+                        {value}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </div>
+              </div>
+            </div>
+          </Modal.Body>
+          <Modal.Footer className="border-0">
+            <Button
+              loading={creating}
+              type="submit"
+              variant="contained"
+              color="error"
+            >
+              Save
+            </Button>
+          </Modal.Footer>
+        </form>
+      </Modal>
+    </>
+  );
+}
