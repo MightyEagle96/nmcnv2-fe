@@ -25,12 +25,14 @@ const AuthoringPage = () => {
       formData.append("testform", file, file.name);
 
       const { data } = await httpService.post(
-        "/authoring/receivefile",
+        // "/authoring/receivefile",
+        "/authoring/parsedocx",
         formData,
         { headers: { "Content-Type": "multipart/form-data" } },
       );
       if (data) {
-        navigate(`/authoringtool/result`);
+        console.log(data);
+        //navigate(`/authoringtool/result`);
         // window.location.assign("/authoring/result");
       }
 
