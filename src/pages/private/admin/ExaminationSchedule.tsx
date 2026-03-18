@@ -17,7 +17,7 @@ import { Table, Modal, Badge } from "react-bootstrap";
 import format from "format-duration";
 import { toast } from "react-toastify";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import { useRefresh } from "../../../context/RefreshContext";
 import { toastError } from "../../../components/ErrorToast";
 
@@ -69,8 +69,8 @@ function ExaminationSchedule() {
   const [updatingDownloadTime, setUpdatingDownloadTime] = useState(false);
   const [updatingExamTime, setUpdatingExamTime] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [downloadAt, setDownloadAt] = useState<Date | null>(null);
-  const [examBeginAt, setExamBeginAt] = useState<Date | null>(null);
+  const [downloadAt, setDownloadAt] = useState<Dayjs | null>(null);
+  const [examBeginAt, setExamBeginAt] = useState<Dayjs | null>(null);
 
   const getData = async () => {
     const { data } = await httpService(`/cbt/viewsingle?_id=${examinationId}`);
@@ -299,11 +299,13 @@ function ExaminationSchedule() {
                     label="Scheduled Download Time"
                     sx={{ width: "80%" }}
                     value={downloadAt}
-                    onChange={setDownloadAt}
-                    minDate={dayjs()}
-                    renderInput={(params: any) => (
-                      <TextField {...params} fullWidth />
-                    )}
+                    onChange={(newValue) => setDownloadAt(newValue)}
+                    minDateTime={dayjs()}
+                    slotProps={{
+                      textField: {
+                        fullWidth: true,
+                      },
+                    }}
                   />
                   <LoadingButton
                     className="ms-3"
@@ -327,11 +329,13 @@ function ExaminationSchedule() {
                     label="Scheduled Examination Time"
                     sx={{ width: "80%" }}
                     value={examBeginAt}
-                    onChange={setExamBeginAt}
-                    minDate={dayjs()}
-                    renderInput={(params: any) => (
-                      <TextField {...params} fullWidth />
-                    )}
+                    onChange={(newValue) => setExamBeginAt(newValue)}
+                    minDateTime={dayjs()}
+                    slotProps={{
+                      textField: {
+                        fullWidth: true,
+                      },
+                    }}
                   />
                   <LoadingButton
                     className="ms-3"

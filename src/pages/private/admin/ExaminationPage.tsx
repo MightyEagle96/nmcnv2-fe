@@ -24,14 +24,16 @@ import { Link } from "react-router-dom";
 import { useRefresh } from "../../../context/RefreshContext";
 
 function ExaminationPage() {
-  const [selectedProgrammes, setSelectedProgrammes] = useState([]);
+  const [selectedProgrammes, setSelectedProgrammes] = useState<string[]>([]);
   const [programmes, setProgrammes] = useState([]);
   const [examinations, setExaminations] = useState([]);
   const [show, setShow] = useState(false);
 
-  const [examination, setExamination] = useState({});
+  const [examination, setExamination] = useState<{ name: string }>({
+    name: "",
+  });
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const { refresh } = useRefresh();
 
@@ -196,7 +198,14 @@ function ExaminationPage() {
       field: "candidates",
       headerName: "Candidates",
       width: 100,
-      renderCell: (params: any) => <Button>view</Button>,
+      renderCell: (params: any) => (
+        <Button
+          component={Link}
+          to={`/candidates?examination=${params.row._id}`}
+        >
+          view
+        </Button>
+      ),
     },
     {
       field: "schedule",

@@ -239,7 +239,6 @@ function ActionMenu({ row }: any) {
   const { refresh, setRefresh } = useRefresh();
 
   const { loading, setLoading } = useLoading();
-  const [creating, setCreating] = useState(false);
 
   const [params] = useSearchParams();
 
@@ -254,13 +253,13 @@ function ActionMenu({ row }: any) {
     activity: string;
     score: string;
   }>({
-    name: "",
-    code: "",
-    viva: 0,
-    procedure: 0,
-    research: 0,
-    clientCare: 0,
-    expectantFamilyCare: 0,
+    activity: "",
+    score: "",
+    // viva: 0,
+    // procedure: 0,
+    // research: 0,
+    // clientCare: 0,
+    // expectantFamilyCare: 0,
   });
 
   const open = Boolean(anchorEl);
@@ -398,7 +397,7 @@ function ActionMenu({ row }: any) {
           </Modal.Body>
           <Modal.Footer className="border-0">
             <Button
-              loading={creating}
+              loading={loading}
               type="submit"
               variant="contained"
               color="error"

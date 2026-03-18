@@ -3,12 +3,10 @@ import { toastError } from "../../../components/ErrorToast";
 import { httpService } from "../../../httpService";
 import { Typography } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
-import { useNavigate } from "react-router-dom";
 
 const AuthoringPage = () => {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
-  const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
