@@ -47,7 +47,7 @@ function SideMenuComponents() {
     { path: "/caosce", name: "Home", icon: Home },
     { path: "/caosce/programmes", name: "Programmes", icon: Book },
     { path: "/procedures", name: "Procedures", icon: Biotech },
-    { path: "/examination", name: "Examination", icon: Edit },
+    { path: "/caosce/examination", name: "Examination", icon: Edit },
     { path: "/activityscore", name: "Activity Scores", icon: Scoreboard },
     { path: "/monitoringdashboard", name: "Monitoring Dashboard", icon: Tv },
   ];

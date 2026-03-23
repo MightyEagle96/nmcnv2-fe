@@ -41,7 +41,6 @@ function ExaminationPage() {
     setLoading(true);
     const { data } = await httpService("cbt/view");
     if (data) {
-      console.log(data);
       setExaminations(data.examinations);
     }
     setLoading(false);

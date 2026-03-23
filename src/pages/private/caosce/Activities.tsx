@@ -106,8 +106,8 @@ function Activities() {
 
     if (!over || active.id === over.id) return;
 
-    const oldIndex = activities.findIndex((a) => a._id === active.id);
-    const newIndex = activities.findIndex((a) => a._id === over.id);
+    const oldIndex = activities.findIndex((a: any) => a._id === active.id);
+    const newIndex = activities.findIndex((a: any) => a._id === over.id);
 
     const newArray = arrayMove(activities, oldIndex, newIndex);
 
@@ -119,9 +119,8 @@ function Activities() {
 
     setActivities(reordered);
 
-    console.log(reordered);
-
     try {
+      setReordering(true);
       const { data } = await httpService.patch("caosce/reorderactivities", {
         procedureId: query.id,
         activities: reordered,
@@ -132,9 +131,9 @@ function Activities() {
       }
     } catch (error) {
       toastError(error);
+    } finally {
+      setReordering(false);
     }
-    // Persist to backend
-    //updateActivityOrder(reordered);
   };
   return (
     <div>
@@ -190,10 +189,10 @@ function Activities() {
           onDragEnd={handleDragEnd}
         >
           <SortableContext
-            items={activities.map((a) => a._id)}
+            items={activities.map((a: any) => a._id)}
             strategy={verticalListSortingStrategy}
           >
-            {activities.map((c, i) => (
+            {activities.map((c: any, i) => (
               <SortableRow
                 key={i}
                 id={c._id}
