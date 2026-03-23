@@ -6,6 +6,7 @@ import {
   TextField,
   Typography,
   Menu,
+  LinearProgress,
 } from "@mui/material";
 import { ApplicationNavigation } from "../../../routes/CaosceRoutes";
 import { Menu as MenuIcon, MoreVert } from "@mui/icons-material";
@@ -18,6 +19,15 @@ import { toastError } from "../../../components/ErrorToast";
 import { toast } from "react-toastify";
 import { useRefresh } from "../../../context/RefreshContext";
 import { useLoading } from "../../../context/LoadingContext";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { DndContext, closestCenter } from "@dnd-kit/core";
+
+import {
+  arrayMove,
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 
 function Activities() {
   const [params] = useSearchParams();
@@ -31,6 +41,7 @@ function Activities() {
     activity: "",
     score: "",
   });
+  const [reordering, setReordering] = useState<boolean>(false);
 
   const { refresh } = useRefresh();
   // const data = params.getAll(["id", "name"]);
@@ -89,6 +100,42 @@ function Activities() {
   useEffect(() => {
     getActivities();
   }, [refresh]);
+
+  const handleDragEnd = async (event: any) => {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = activities.findIndex((a) => a._id === active.id);
+    const newIndex = activities.findIndex((a) => a._id === over.id);
+
+    const newArray = arrayMove(activities, oldIndex, newIndex);
+
+    // Update order locally
+    const reordered = newArray.map((item, index) => ({
+      ...item,
+      order: index + 1,
+    }));
+
+    setActivities(reordered);
+
+    console.log(reordered);
+
+    try {
+      const { data } = await httpService.patch("caosce/reorderactivities", {
+        procedureId: query.id,
+        activities: reordered,
+      });
+
+      if (data) {
+        toast.success(data);
+      }
+    } catch (error) {
+      toastError(error);
+    }
+    // Persist to backend
+    //updateActivityOrder(reordered);
+  };
   return (
     <div>
       <div className="mb-4">
@@ -136,28 +183,28 @@ function Activities() {
             <Typography variant="h6">Modify</Typography>
           </div>
         </div>
-        <Divider />
-        {activities.map((c, i) => (
-          <div className="row py-2 border-bottom d-flex align-items-center">
-            <div className="col-lg-1 border-end">
-              <Typography variant="body2">{i + 1}</Typography>
-            </div>
-            <div className="col-lg-5 border-end">
-              <Typography variant="body2">{c.activity}</Typography>
-            </div>
-            <div className="col-lg-2 border-end">
-              <Typography variant="body2">{c.score}</Typography>
-            </div>
-            <div className="col-lg-1 border-end">
-              <ActionMenu row={c} getActivities={getActivities} />
-            </div>
-            <div className="col-lg-2">
-              <IconButton>
-                <MenuIcon />
-              </IconButton>
-            </div>
-          </div>
-        ))}
+        {reordering ? <LinearProgress /> : <Divider />}
+
+        <DndContext
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={activities.map((a) => a._id)}
+            strategy={verticalListSortingStrategy}
+          >
+            {activities.map((c, i) => (
+              <SortableRow
+                key={i}
+                id={c._id}
+                c={c}
+                i={i}
+                getActivities={getActivities}
+                reodering={reordering}
+              />
+            ))}
+          </SortableContext>
+        </DndContext>
       </div>
       <Modal
         size="xl"
@@ -255,11 +302,6 @@ function ActionMenu({ row }: any) {
   }>({
     activity: "",
     score: "",
-    // viva: 0,
-    // procedure: 0,
-    // research: 0,
-    // clientCare: 0,
-    // expectantFamilyCare: 0,
   });
 
   const open = Boolean(anchorEl);
@@ -280,20 +322,19 @@ function ActionMenu({ row }: any) {
   };
 
   const handleDelete = () => {
-    console.log("Delete row:", row);
     handleClose();
 
     Swal.fire({
       icon: "question",
-      title: "Delete Programme",
-      text: "Are you sure you want to delete this programme?",
+      title: "Delete Activity",
+      text: "Are you sure you want to delete this activity?",
       showCancelButton: true,
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
           setLoading(true);
           const { data } = await httpService.delete(
-            `programme/delete/${row._id}`,
+            `caosce/deleteactivity?procedureId=${query.id}&activityId=${row._id}`,
           );
           if (data) {
             toast.success(data);
@@ -318,6 +359,7 @@ function ActionMenu({ row }: any) {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
+          console.log({ activity });
           setLoading(true);
           const { data } = await httpService.patch(
             `caosce/updateprocedureactivity?procedureId=${query.id}&activityId=${row._id}`,
@@ -331,6 +373,7 @@ function ActionMenu({ row }: any) {
           setLoading(false);
         } catch (error) {
           toastError(error);
+          setLoading(false);
         }
       }
     });
@@ -410,3 +453,44 @@ function ActionMenu({ row }: any) {
     </>
   );
 }
+
+const SortableRow = ({ id, c, i, getActivities, reodering }: any) => {
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="row py-2 border-bottom d-flex align-items-center"
+    >
+      <div className="col-lg-1 border-end">
+        <Typography variant="body2">{i + 1}</Typography>
+      </div>
+
+      <div className="col-lg-5 border-end">
+        <Typography variant="body2">{c.activity}</Typography>
+      </div>
+
+      <div className="col-lg-2 border-end">
+        <Typography variant="body2">{c.score}</Typography>
+      </div>
+
+      <div className="col-lg-1 border-end">
+        <ActionMenu row={c} getActivities={getActivities} />
+      </div>
+
+      {/* Drag Handle */}
+      <div className="col-lg-2">
+        <IconButton disabled={reodering} {...attributes} {...listeners}>
+          <MenuIcon />
+        </IconButton>
+      </div>
+    </div>
+  );
+};

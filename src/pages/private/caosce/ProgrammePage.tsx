@@ -126,7 +126,7 @@ function ProgrammePage() {
     {
       field: "name",
       headerName: "Name",
-      width: 500,
+      width: 600,
       renderCell: (params: any) => (
         <span style={{ textTransform: "uppercase" }}>{params.row.name}</span>
       ),
@@ -170,18 +170,19 @@ function ProgrammePage() {
     {
       field: "maxScore",
       headerName: "Max Score",
-      width: 300,
-      renderCell: (params: any) => {
-        let severity: "info" | "success" | "error" = "info";
+      width: 150,
+      renderCell: (params: any) => params.row.maxScore,
+      // renderCell: (params: any) => {
+      //   let severity: "info" | "success" | "error" = "info";
 
-        if (params.row.maxScore > programmeData.procedure) {
-          severity = "error";
-        } else if (params.row.maxScore === programmeData.procedure) {
-          severity = "success";
-        }
+      //   if (params.row.maxScore > programmeData.procedure) {
+      //     severity = "error";
+      //   } else if (params.row.maxScore === programmeData.procedure) {
+      //     severity = "success";
+      //   }
 
-        return <Alert severity={severity}>{params.row.maxScore}</Alert>;
-      },
+      //   return <Alert severity={severity}>{params.row.maxScore}</Alert>;
+      // },
     },
   ];
   return (
