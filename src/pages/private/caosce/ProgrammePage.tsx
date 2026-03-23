@@ -2,11 +2,19 @@ import React, { useEffect, useState } from "react";
 import { toastError } from "../../../components/ErrorToast";
 import { httpService } from "../../../httpService";
 import { Link, useSearchParams } from "react-router-dom";
-import { Alert, Button, Divider, TextField, Typography } from "@mui/material";
+import {
+  Alert,
+  Box,
+  Button,
+  Divider,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { Modal } from "react-bootstrap";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
-import { PlusOne } from "@mui/icons-material";
+import { Clear, Done, PlusOne } from "@mui/icons-material";
 import { DataGrid } from "@mui/x-data-grid";
 import { useRefresh } from "../../../context/RefreshContext";
 
@@ -60,7 +68,6 @@ function ProgrammePage() {
       });
       if (data) {
         setProgrammeData(data);
-        console.log(data);
       }
     } catch (error) {
       toastError(error);
@@ -122,11 +129,11 @@ function ProgrammePage() {
   };
 
   const columns = [
-    { field: "id", headerName: "ID", width: 100 },
+    { field: "id", headerName: "ID", width: 50 },
     {
       field: "name",
       headerName: "Name",
-      width: 600,
+      width: 400,
       renderCell: (params: any) => (
         <span style={{ textTransform: "uppercase" }}>{params.row.name}</span>
       ),
@@ -165,6 +172,68 @@ function ProgrammePage() {
         >
           <span>{params.row.activityCount}</span>
         </Typography>
+      ),
+    },
+    {
+      field: "requirement",
+      headerName: "Requirements",
+      width: 150,
+      renderCell: (params: any) => (
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            height: "100%",
+          }}
+        >
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <Button
+              size="small"
+              sx={{ textTransform: "none" }}
+              component={Link}
+              to={`/caosce/requirements?programme=${_id}&procedure=${params.row._id}&name=${params.row.name}`}
+            >
+              View
+            </Button>
+
+            {params.row.hasRequirements ? (
+              <Done color="success" fontSize="small" />
+            ) : (
+              <Clear color="error" fontSize="small" />
+            )}
+          </Stack>
+        </Box>
+      ),
+    },
+    {
+      field: "instruction",
+      headerName: "Instructions",
+      width: 150,
+      renderCell: (params: any) => (
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            height: "100%",
+          }}
+        >
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <Button
+              size="small"
+              sx={{ textTransform: "none" }}
+              component={Link}
+              to={`/caosce/instructions?programme=${_id}&procedure=${params.row._id}&name=${params.row.name}`}
+            >
+              View
+            </Button>
+
+            {params.row.hasInstructions ? (
+              <Done color="success" fontSize="small" />
+            ) : (
+              <Clear color="error" fontSize="small" />
+            )}
+          </Stack>
+        </Box>
       ),
     },
     {
@@ -253,8 +322,6 @@ function ProgrammePage() {
                 rows={programmeProcedures}
                 columns={columns}
                 rowCount={programmeProcedures.length}
-                // pageSize={5}
-                // rowsPerPageOptions={[5]}
               />
             </div>
           </div>

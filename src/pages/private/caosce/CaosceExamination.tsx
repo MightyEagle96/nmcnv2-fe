@@ -1,7 +1,8 @@
-import { Typography } from "@mui/material";
+import { Button, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { httpService } from "../../../httpService";
 import { DataGrid } from "@mui/x-data-grid";
+import { Link } from "react-router-dom";
 
 function CaosceExamination() {
   const [examinations, setExaminations] = useState([]);
@@ -26,10 +27,34 @@ function CaosceExamination() {
       field: "name",
       headerName: "Name",
       width: 300,
-      renderCell: (params) => (
+      renderCell: (params: any) => (
         <span style={{ textTransform: "uppercase" }}>
           {params.row.cbtExamination.name}
         </span>
+      ),
+    },
+    {
+      field: "active",
+      headerName: "Active Status",
+      width: 300,
+      renderCell: (params: any) =>
+        params.row.active ? (
+          <Button color="error">Deactivate</Button>
+        ) : (
+          <Button color="success">Activate</Button>
+        ),
+    },
+    {
+      field: "schedule",
+      headerName: "View Schedule",
+      width: 300,
+      renderCell: (params: any) => (
+        <Button
+          component={Link}
+          to={`/caosce/schedule?caosce=${params.row._id}`}
+        >
+          View
+        </Button>
       ),
     },
   ];
@@ -40,7 +65,7 @@ function CaosceExamination() {
           CAOSCE EXAMINATION
         </Typography>
       </div>
-      <DataGrid rows={examinations} columns={columns} />
+      <DataGrid rows={examinations} columns={columns} loading={loading} />
     </div>
   );
 }
