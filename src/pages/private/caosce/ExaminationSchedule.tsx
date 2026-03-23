@@ -2,7 +2,14 @@ import { useSearchParams } from "react-router-dom";
 import { toastError } from "../../../components/ErrorToast";
 import { httpService } from "../../../httpService";
 import { useEffect, useState } from "react";
-import { Button, Divider, Stack, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Divider,
+  Skeleton,
+  Stack,
+  Typography,
+} from "@mui/material";
 import { Add } from "@mui/icons-material";
 
 export interface ICaosceExamination {
@@ -52,6 +59,10 @@ function ExaminationSchedule() {
   useEffect(() => {
     getData();
   }, []);
+
+  if (loading) {
+    return <LoadingSection />;
+  }
   return (
     <div>
       {examination && (
@@ -127,3 +138,44 @@ function ExaminationSchedule() {
 }
 
 export default ExaminationSchedule;
+
+function LoadingSection() {
+  return (
+    <Box>
+      {/* Title Skeleton */}
+      <Skeleton variant="text" width={180} height={20} />
+      <Skeleton variant="text" width={400} height={50} sx={{ mb: 4 }} />
+
+      {/* Programme Cards Skeleton */}
+      {[1, 2, 3].map((_, i) => (
+        <Box key={i} sx={{ mb: 4 }}>
+          <Stack
+            direction="row"
+            alignItems="center"
+            spacing={3}
+            sx={{
+              p: 2,
+              borderRadius: 2,
+            }}
+          >
+            <Stack spacing={1}>
+              <Skeleton variant="text" width={120} />
+              <Skeleton variant="text" width={200} height={30} />
+            </Stack>
+
+            <Divider orientation="vertical" flexItem />
+
+            <Stack spacing={1}>
+              <Skeleton variant="text" width={100} />
+              <Skeleton variant="text" width={60} height={30} />
+            </Stack>
+
+            <Divider orientation="vertical" flexItem />
+
+            <Skeleton variant="rectangular" width={130} height={35} />
+          </Stack>
+        </Box>
+      ))}
+    </Box>
+  );
+}
