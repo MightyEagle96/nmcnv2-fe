@@ -71,7 +71,7 @@ function ProcedureRequirements() {
     viewRequirements();
   }, []);
 
-  if (pageLoading) {
+  if (pageLoading || !editorReady) {
     <PageLoading />;
   }
   return (

@@ -70,7 +70,7 @@ function ProcedureInstructions() {
     viewInstruction();
   }, []);
 
-  if (pageLoading) {
+  if (pageLoading || !editorReady) {
     <PageLoading />;
   }
   return (
