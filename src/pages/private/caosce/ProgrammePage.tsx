@@ -6,7 +6,10 @@ import {
   Alert,
   Box,
   Button,
-  Divider,
+  Checkbox,
+  FormControlLabel,
+  FormGroup,
+  IconButton,
   Stack,
   TextField,
   Typography,
@@ -14,7 +17,7 @@ import {
 import { Modal } from "react-bootstrap";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
-import { Clear, Done, PlusOne } from "@mui/icons-material";
+import { Clear, Done, FileCopy, PlusOne } from "@mui/icons-material";
 import { DataGrid } from "@mui/x-data-grid";
 import { useRefresh } from "../../../context/RefreshContext";
 
@@ -59,6 +62,14 @@ function ProgrammePage() {
   const [nameError, setNameError] = useState("");
 
   const { refresh, setRefresh } = useRefresh();
+
+  const [loading, setLoading] = useState(false);
+
+  const [programmes, setProgrammes] = useState<IProgrammeData[]>([]);
+
+  const [selectedProgrammes, setSelectedProgrammes] = useState<string[]>([]);
+
+  const [showCopy, setShowCopy] = useState(false);
 
   const _id = params.get("id");
   const viewProgramme = async () => {
@@ -253,7 +264,69 @@ function ProgrammePage() {
       //   return <Alert severity={severity}>{params.row.maxScore}</Alert>;
       // },
     },
+    {
+      field: "copyProcedure",
+      headerName: "Copy Procedure",
+      width: 150,
+      renderCell: () => (
+        <IconButton color="warning" onClick={fetchProgrammes}>
+          <FileCopy />
+        </IconButton>
+      ),
+    },
   ];
+
+  const fetchProgrammes = async () => {
+    setLoading(true);
+    try {
+      const { data } = await httpService(
+        "caosce/fetchprogrammeswithexception",
+        {
+          params: { id: _id },
+        },
+      );
+      if (data) {
+        setProgrammes(data);
+        setShowCopy(true);
+        console.log(data);
+        // setProgrammeData(data);
+      }
+    } catch (error) {
+      setShowCopy(false);
+      toastError(error);
+    }
+    //setProgrammeProcedures(data);
+    setLoading(false);
+  };
+
+  const handleProgrammeChange = (programmeId: string) => {
+    setSelectedProgrammes((prev) => {
+      if (prev.includes(programmeId)) {
+        // Deselect
+        return prev.filter((id) => id !== programmeId);
+      } else {
+        // Select
+        return [...prev, programmeId];
+      }
+    });
+  };
+
+  // useEffect(() => {
+  //   console.log("Selected Programmes:", selectedProgrammes);
+  // }, [selectedProgrammes]);
+
+  const copyProcedureToProgrammes = () => {
+    Swal.fire({
+      icon: "question",
+      text: "Are you sure you want to copy this procedure to the selected programmes",
+      showCancelButton: true,
+      confirmButtonText: "Yes",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        console.log({ selectedProgrammes });
+      }
+    });
+  };
   return (
     <div>
       {programmeData && (
@@ -277,38 +350,32 @@ function ProgrammePage() {
               <Button onClick={() => setShow(!show)}>add new prodedure</Button>
             </div>
           </div>
-          <div className="border rounded">
-            <div className="p-3">
-              <div className="row fw-bold text-muted">
-                <div className="col-lg-3">
-                  <Typography variant="body2">Procedures</Typography>
-                </div>
-                <div className="col-lg-3">
-                  <Typography variant="body2">Items Count</Typography>
-                </div>
-                <div className="col-lg-3">
-                  <Typography variant="body2">Activities Count</Typography>
-                </div>
+          <div className="p-3 col-lg-6  rounded bg-light text-muted shadow-sm">
+            <div className="d-flex justify-content-between text-center pb-2 border-bottom mb-3">
+              <div className="col-lg-2">
+                <Typography variant="body2">Procedures</Typography>
+              </div>
+              <div className="col-lg-2">
+                <Typography variant="body2">Items Count</Typography>
+              </div>
+              <div className="col-lg-2">
+                <Typography variant="body2">Activities Count</Typography>
               </div>
             </div>
-            <Divider />
-            <div className="p-3">
-              <div className="row fw-bold">
-                <div className="col-lg-3">
-                  <Typography variant="h4">
-                    {programmeData.procedureCount}
-                  </Typography>
-                </div>
-                <div className="col-lg-3">
-                  <Typography variant="h4">
-                    {programmeData.itemCount}
-                  </Typography>
-                </div>
-                <div className="col-lg-3">
-                  <Typography variant="h4">
-                    {programmeData.activityCount}
-                  </Typography>
-                </div>
+
+            <div className="d-flex justify-content-between text-center">
+              <div className="col-lg-2">
+                <Typography variant="h4">
+                  {programmeData.procedureCount}
+                </Typography>
+              </div>
+              <div className="col-lg-2">
+                <Typography variant="h4">{programmeData.itemCount}</Typography>
+              </div>
+              <div className="col-lg-2">
+                <Typography variant="h4">
+                  {programmeData.activityCount}
+                </Typography>
               </div>
             </div>
           </div>
@@ -319,6 +386,7 @@ function ProgrammePage() {
               style={{ height: "50vh", overflow: "scroll" }}
             >
               <DataGrid
+                loading={loading}
                 rows={programmeProcedures}
                 columns={columns}
                 rowCount={programmeProcedures.length}
@@ -401,6 +469,55 @@ function ProgrammePage() {
             </Button>
           </Modal.Footer>
         </form>
+      </Modal>
+
+      <Modal
+        show={showCopy}
+        backdrop="static"
+        centered
+        onHide={() => setShowCopy(false)}
+      >
+        <Modal.Header closeButton className="border-0">
+          <Modal.Title>Programmes</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="p-3">
+            <FormGroup>
+              {programmes.map((programme) => (
+                <div>
+                  <FormControlLabel
+                    key={programme._id}
+                    control={
+                      <Checkbox
+                        checked={selectedProgrammes.includes(
+                          programme._id || "",
+                        )}
+                        onChange={() =>
+                          handleProgrammeChange(programme._id || "")
+                        }
+                      />
+                    }
+                    label={
+                      <Typography variant="body2" textTransform={"uppercase"}>
+                        {programme.name}
+                      </Typography>
+                    }
+                  />
+                </div>
+              ))}
+            </FormGroup>
+          </div>
+        </Modal.Body>
+        <Modal.Footer className="border-0">
+          <Button
+            disabled={!selectedProgrammes.length}
+            color="error"
+            onClick={copyProcedureToProgrammes}
+          >
+            COPY PROCEDURE TO SELECTED PROGRAMME
+            {selectedProgrammes.length > 1 ? "S" : ""}
+          </Button>
+        </Modal.Footer>
       </Modal>
     </div>
   );
