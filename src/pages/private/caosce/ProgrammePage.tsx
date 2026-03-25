@@ -35,6 +35,17 @@ type IProgrammeData = {
   procedureCount: number;
 };
 
+type IProcedureData = {
+  name: string;
+  code: string;
+  _id?: string;
+  itemCount: number;
+  activityCount: number;
+  procedureCount: number;
+  hasRequirements: boolean;
+  hasInstructions: boolean;
+};
+
 function ProgrammePage() {
   const [params] = useSearchParams();
   const [programmeData, setProgrammeData] = useState<IProgrammeData>({
@@ -70,6 +81,8 @@ function ProgrammePage() {
   const [selectedProgrammes, setSelectedProgrammes] = useState<string[]>([]);
 
   const [showCopy, setShowCopy] = useState(false);
+
+  const [procedure, setProcedure] = useState<IProcedureData | null>(null);
 
   const _id = params.get("id");
   const viewProgramme = async () => {
@@ -268,8 +281,14 @@ function ProgrammePage() {
       field: "copyProcedure",
       headerName: "Copy Procedure",
       width: 150,
-      renderCell: () => (
-        <IconButton color="warning" onClick={fetchProgrammes}>
+      renderCell: (params: any) => (
+        <IconButton
+          color="warning"
+          onClick={() => {
+            fetchProgrammes();
+            setProcedure(params.row);
+          }}
+        >
           <FileCopy />
         </IconButton>
       ),
@@ -323,9 +342,30 @@ function ProgrammePage() {
       confirmButtonText: "Yes",
     }).then(async (result) => {
       if (result.isConfirmed) {
+        try {
+          const { data } = await httpService.post(
+            "caosce/copyproceduretoprogramme",
+            {
+              selectedProgrammes,
+              procedureId: procedure?._id || "",
+            },
+          );
+
+          toast.success(data);
+          setShowCopy(false);
+          setSelectedProgrammes([]);
+        } catch (error) {
+          toastError(error);
+        }
         console.log({ selectedProgrammes });
       }
     });
+  };
+
+  const handleClose = () => {
+    setShowCopy(false);
+    setSelectedProgrammes([]);
+    setProcedure(null);
   };
   return (
     <div>
@@ -471,17 +511,27 @@ function ProgrammePage() {
         </form>
       </Modal>
 
-      <Modal
-        show={showCopy}
-        backdrop="static"
-        centered
-        onHide={() => setShowCopy(false)}
-      >
+      <Modal show={showCopy} backdrop="static" centered onHide={handleClose}>
         <Modal.Header closeButton className="border-0">
           <Modal.Title>Programmes</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <div className="p-3">
+            <div className="alert alert-light border-0">
+              <Typography variant="caption" gutterBottom>
+                {" "}
+                Procedure summary
+              </Typography>
+
+              <Stack>
+                <Typography textTransform={"uppercase"} variant="body2">
+                  {procedure?.name}{" "}
+                  <span className="fw-bold text-success">
+                    ({procedure?.code})
+                  </span>
+                </Typography>
+              </Stack>
+            </div>
             <FormGroup>
               {programmes.map((programme) => (
                 <div>

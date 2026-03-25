@@ -25,10 +25,17 @@ function CaosceProgrammes() {
 
   const columns = [
     { field: "id", headerName: "ID", width: 100 },
-    { field: "name", headerName: "Name", width: 300 },
-    { field: "procedureCount", headerName: "Procedure Count", width: 300 },
-    { field: "itemCount", headerName: "Item Count", width: 300 },
-    { field: "activityCount", headerName: "Activity Count", width: 300 },
+    {
+      field: "name",
+      headerName: "Name",
+      width: 250,
+      renderCell: (params: any) => (
+        <span className="text-capitalize">{params.row.name}</span>
+      ),
+    },
+    { field: "procedureCount", headerName: "Procedure Count", width: 150 },
+    { field: "itemCount", headerName: "Item Count", width: 150 },
+    { field: "activityCount", headerName: "Activity Count", width: 150 },
     {
       field: "_id",
       headerName: "Action",
