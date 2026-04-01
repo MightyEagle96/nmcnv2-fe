@@ -157,7 +157,7 @@ function ProgrammePage() {
     {
       field: "name",
       headerName: "Name",
-      width: 400,
+      width: 200,
       renderCell: (params: any) => (
         <span style={{ textTransform: "uppercase" }}>{params.row.name}</span>
       ),
@@ -173,7 +173,7 @@ function ProgrammePage() {
     {
       field: "itemCount",
       headerName: "Items",
-      width: 150,
+      width: 130,
       renderCell: (params: any) => (
         <Typography
           sx={{ textDecoration: "none", fontSize: 14 }}
@@ -187,7 +187,7 @@ function ProgrammePage() {
     {
       field: "activityCount",
       headerName: "Activities",
-      width: 150,
+      width: 130,
       renderCell: (params: any) => (
         <Typography
           sx={{ textDecoration: "none", fontSize: 14 }}
@@ -201,7 +201,7 @@ function ProgrammePage() {
     {
       field: "requirement",
       headerName: "Requirements",
-      width: 150,
+      width: 130,
       renderCell: (params: any) => (
         <Box
           sx={{
@@ -232,7 +232,7 @@ function ProgrammePage() {
     {
       field: "instruction",
       headerName: "Instructions",
-      width: 150,
+      width: 130,
       renderCell: (params: any) => (
         <Box
           sx={{
@@ -263,7 +263,7 @@ function ProgrammePage() {
     {
       field: "maxScore",
       headerName: "Max Score",
-      width: 150,
+      width: 130,
       renderCell: (params: any) => params.row.maxScore,
       // renderCell: (params: any) => {
       //   let severity: "info" | "success" | "error" = "info";

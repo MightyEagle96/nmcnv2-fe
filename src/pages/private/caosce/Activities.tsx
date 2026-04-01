@@ -164,7 +164,10 @@ function Activities() {
           Add new activity
         </Button>
       </div>
-      <div className="p-4 rounded border">
+      <div
+        style={{ maxHeight: "70vh", overflow: "scroll" }}
+        className="p-4 rounded border"
+      >
         <div className="row mb-3">
           <div className="col-lg-1">
             <Typography variant="h6">S.No</Typography>
