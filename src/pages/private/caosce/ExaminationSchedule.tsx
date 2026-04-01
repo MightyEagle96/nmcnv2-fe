@@ -211,7 +211,7 @@ function ExaminationSchedule() {
                       onClick={() => {
                         viewProgrammeProcedures(p.programme._id);
 
-                        setProgramme(p.programme);
+                        setProgramme(p.programme as IProgramme);
                       }}
                     >
                       Add Procedure
