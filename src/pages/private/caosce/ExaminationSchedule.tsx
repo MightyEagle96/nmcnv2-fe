@@ -16,6 +16,7 @@ import { Add, Clear, Done } from "@mui/icons-material";
 import { toast } from "react-toastify";
 import { Modal, Table } from "react-bootstrap";
 import { pink } from "@mui/material/colors";
+import Swal from "sweetalert2";
 
 export interface ICaosceExamination {
   cbtExamination: { _id: string; name: string; code: string };
@@ -41,7 +42,7 @@ interface IProgramme {
 }
 interface IProgrammeAndProcedures {
   programme: { name: string; code: string; procedure: number; _id: string };
-  procedures: string[];
+  procedures: { name: string; code: string; maxScore: number }[];
 }
 type IProcedureOverview = {
   activityCount: number;
@@ -92,8 +93,8 @@ function ExaminationSchedule() {
       });
 
       if (data) {
-        setExamination(data);
         console.log(data);
+        setExamination(data);
       }
     } catch (error) {
       toastError(error);
@@ -144,6 +145,49 @@ function ExaminationSchedule() {
       return "error";
     }
   };
+
+  const addProcedures = () => {
+    Swal.fire({
+      title: "Add Procedures",
+      showCancelButton: true,
+      icon: "question",
+      text: "Are you sure you want to add these procedures to the examination",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const body = {
+          programme: programme?._id,
+          procedures: selectedProcedures,
+        };
+
+        try {
+          const { data } = await httpService.patch(
+            "caosce/addproceduretoexamination",
+            body,
+            {
+              params: { id: caosce },
+            },
+          );
+
+          if (data) {
+            getData();
+            closeModal();
+          }
+
+          toast.success(data);
+        } catch (error) {
+          toastError(error);
+        }
+      }
+    });
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setProgramme(null);
+
+    setSelectedProcedures([]);
+    setTotalMaxScore(0);
+  };
   return (
     <div>
       {examination && (
@@ -161,49 +205,28 @@ function ExaminationSchedule() {
             </Typography>
           </div>
           <div>
-            {examination.programmesAndProcedures.map((p, i) => (
+            {examination?.programmesAndProcedures.map((p, i) => (
               <div className="mb-4">
-                <div className="mb-4">
-                  <Stack
-                    direction="row"
-                    alignItems="center"
-                    spacing={3}
-                    sx={{
-                      p: 2,
-                      borderRadius: 2,
-                      bgcolor: "background.paper",
-                    }}
-                  >
-                    {/* Programme Info */}
-                    <Stack spacing={0.5}>
-                      <Typography variant="overline" color="text.secondary">
-                        Programme {i + 1}
-                      </Typography>
-
-                      <Typography
-                        variant="body1"
-                        sx={{ textTransform: "uppercase", fontWeight: 600 }}
-                        color="primary"
-                      >
-                        {p.programme.name}
-                      </Typography>
-                    </Stack>
-
-                    <Divider orientation="vertical" flexItem />
-
-                    {/* Procedure Score */}
-                    <Stack>
-                      <Typography variant="body2" color="text.secondary">
-                        Procedure Score
-                      </Typography>
-                      <Typography variant="body1" fontWeight={600}>
+                <div className="row d-flex align-items-center mb-2 p-3 border rounded m-3">
+                  <div className="col-lg-4">
+                    <Typography variant="caption">Programme {i + 1}</Typography>
+                    <Typography
+                      variant="h5"
+                      textTransform={"uppercase"}
+                      fontWeight={300}
+                    >
+                      {p.programme.name}
+                    </Typography>
+                  </div>
+                  <div className="col-lg-4">
+                    <div>
+                      <Typography variant="caption">Procedure Score</Typography>
+                      <Typography variant="h5" fontWeight={300}>
                         {p.programme.procedure}
                       </Typography>
-                    </Stack>
-
-                    <Divider orientation="vertical" flexItem />
-
-                    {/* Action */}
+                    </div>
+                  </div>
+                  <div className="col-lg-4">
                     <Button
                       color="error"
                       startIcon={<Add />}
@@ -216,7 +239,33 @@ function ExaminationSchedule() {
                     >
                       Add Procedure
                     </Button>
-                  </Stack>
+                  </div>
+                </div>
+                <div className="p-3 bg-light rounded">
+                  <Typography color="error">Selected Procedures</Typography>
+                  <Table striped borderless>
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Code</th>
+                        <th>Max Score</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {p?.procedures?.map((c, i) => (
+                        <tr
+                          key={i}
+                          style={{ fontSize: "15px", color: "GrayText" }}
+                        >
+                          <td>{i + 1}</td>
+                          <td>{c.name}</td>
+                          <td className="text-uppercase">{c.code}</td>
+                          <td>{c.maxScore}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </Table>
                 </div>
               </div>
             ))}
@@ -227,12 +276,7 @@ function ExaminationSchedule() {
         backdrop="static"
         size="xl"
         show={showModal}
-        onHide={() => {
-          setShowModal(false);
-          setProgramme(null);
-          setProgrammeProcedures([]);
-          setTotalMaxScore(0);
-        }}
+        onHide={closeModal}
         centered
       >
         <Modal.Header closeButton className="border-0">
@@ -242,8 +286,8 @@ function ExaminationSchedule() {
         </Modal.Header>
         <Modal.Body>
           <div className="col-lg-4">
-            <Alert severity={customSeverity()}>
-              {totalMaxScore}/{programme?.procedure}
+            <Alert variant="filled" severity={customSeverity()}>
+              Procedure: {totalMaxScore}/{programme?.procedure}
             </Alert>
           </div>
           <div
@@ -329,7 +373,18 @@ function ExaminationSchedule() {
             </Table>
           </div>
         </Modal.Body>
-        <Modal.Footer></Modal.Footer>
+        <Modal.Footer className="border-0 bg-light">
+          <Button
+            color="error"
+            onClick={addProcedures}
+            disabled={
+              selectedProcedures.length !== 3 ||
+              totalMaxScore !== programme?.procedure
+            }
+          >
+            Add these procedures
+          </Button>
+        </Modal.Footer>
       </Modal>
     </div>
   );
