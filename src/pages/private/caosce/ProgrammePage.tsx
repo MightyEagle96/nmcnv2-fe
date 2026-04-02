@@ -7,9 +7,12 @@ import {
   Box,
   Button,
   Checkbox,
+  CircularProgress,
   FormControlLabel,
   FormGroup,
   IconButton,
+  Menu,
+  MenuItem,
   Stack,
   TextField,
   Typography,
@@ -17,9 +20,17 @@ import {
 import { Modal } from "react-bootstrap";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
-import { Clear, Done, FileCopy, PlusOne } from "@mui/icons-material";
+import {
+  Clear,
+  Delete,
+  Done,
+  FileCopy,
+  MoreVert,
+  PlusOne,
+} from "@mui/icons-material";
 import { DataGrid } from "@mui/x-data-grid";
 import { useRefresh } from "../../../context/RefreshContext";
+import { FaEdit } from "react-icons/fa";
 
 type IProgrammeData = {
   name: string;
@@ -76,14 +87,6 @@ function ProgrammePage() {
 
   const [loading, setLoading] = useState(false);
 
-  const [programmes, setProgrammes] = useState<IProgrammeData[]>([]);
-
-  const [selectedProgrammes, setSelectedProgrammes] = useState<string[]>([]);
-
-  const [showCopy, setShowCopy] = useState(false);
-
-  const [procedure, setProcedure] = useState<IProcedureData | null>(null);
-
   const _id = params.get("id");
   const viewProgramme = async () => {
     try {
@@ -99,6 +102,7 @@ function ProgrammePage() {
   };
 
   const viewProgrammeProcedures = async () => {
+    setLoading(true);
     try {
       const { data } = await httpService("caosce/programmeprocedures", {
         params: { _id },
@@ -110,6 +114,7 @@ function ProgrammePage() {
     } catch (error) {
       toastError(error);
     }
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -265,108 +270,15 @@ function ProgrammePage() {
       headerName: "Max Score",
       width: 130,
       renderCell: (params: any) => params.row.maxScore,
-      // renderCell: (params: any) => {
-      //   let severity: "info" | "success" | "error" = "info";
-
-      //   if (params.row.maxScore > programmeData.procedure) {
-      //     severity = "error";
-      //   } else if (params.row.maxScore === programmeData.procedure) {
-      //     severity = "success";
-      //   }
-
-      //   return <Alert severity={severity}>{params.row.maxScore}</Alert>;
-      // },
     },
     {
-      field: "copyProcedure",
-      headerName: "Copy Procedure",
+      field: "action",
+      headerName: "Action",
       width: 150,
-      renderCell: (params: any) => (
-        <IconButton
-          color="warning"
-          onClick={() => {
-            fetchProgrammes();
-            setProcedure(params.row);
-          }}
-        >
-          <FileCopy />
-        </IconButton>
-      ),
+      renderCell: (params: any) => <ActionMenu row={params.row} />,
     },
   ];
 
-  const fetchProgrammes = async () => {
-    setLoading(true);
-    try {
-      const { data } = await httpService(
-        "caosce/fetchprogrammeswithexception",
-        {
-          params: { id: _id },
-        },
-      );
-      if (data) {
-        setProgrammes(data);
-        setShowCopy(true);
-        console.log(data);
-        // setProgrammeData(data);
-      }
-    } catch (error) {
-      setShowCopy(false);
-      toastError(error);
-    }
-    //setProgrammeProcedures(data);
-    setLoading(false);
-  };
-
-  const handleProgrammeChange = (programmeId: string) => {
-    setSelectedProgrammes((prev) => {
-      if (prev.includes(programmeId)) {
-        // Deselect
-        return prev.filter((id) => id !== programmeId);
-      } else {
-        // Select
-        return [...prev, programmeId];
-      }
-    });
-  };
-
-  // useEffect(() => {
-  //   console.log("Selected Programmes:", selectedProgrammes);
-  // }, [selectedProgrammes]);
-
-  const copyProcedureToProgrammes = () => {
-    Swal.fire({
-      icon: "question",
-      text: "Are you sure you want to copy this procedure to the selected programmes",
-      showCancelButton: true,
-      confirmButtonText: "Yes",
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          const { data } = await httpService.post(
-            "caosce/copyproceduretoprogramme",
-            {
-              selectedProgrammes,
-              procedureId: procedure?._id || "",
-            },
-          );
-
-          toast.success(data);
-          setShowCopy(false);
-          setSelectedProgrammes([]);
-        } catch (error) {
-          toastError(error);
-        }
-        console.log({ selectedProgrammes });
-      }
-    });
-  };
-
-  const handleClose = () => {
-    setShowCopy(false);
-    setSelectedProgrammes([]);
-    setProcedure(null);
-  };
   return (
     <div>
       {programmeData && (
@@ -421,10 +333,7 @@ function ProgrammePage() {
           </div>
 
           <div className="mt-5">
-            <div
-              // className="p-3 rounded border"
-              style={{ height: "50vh", overflow: "scroll" }}
-            >
+            <div style={{ height: "50vh", overflow: "scroll" }}>
               <DataGrid
                 loading={loading}
                 rows={programmeProcedures}
@@ -510,8 +419,188 @@ function ProgrammePage() {
           </Modal.Footer>
         </form>
       </Modal>
+    </div>
+  );
+}
 
-      <Modal show={showCopy} backdrop="static" centered onHide={handleClose}>
+export default ProgrammePage;
+
+type ActionMenuProps = {
+  row: IProcedureData; // you can strongly type this later
+};
+
+function ActionMenu({ row }: ActionMenuProps) {
+  const [params] = useSearchParams();
+  const _id = params.get("id");
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  const [showCopy, setShowCopy] = useState(false);
+
+  const [selectedProgrammes, setSelectedProgrammes] = useState<string[]>([]);
+  const [programmes, setProgrammes] = useState<IProgrammeData[]>([]);
+  const [copying, setCopying] = useState(false);
+  const [loading, setLoading] = useState(false);
+  //const [procedure, setProcedure] = useState<IProcedureData | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  const { refresh, setRefresh } = useRefresh();
+
+  const handleProgrammeChange = (programmeId: string) => {
+    setSelectedProgrammes((prev) => {
+      if (prev.includes(programmeId)) {
+        // Deselect
+        return prev.filter((id) => id !== programmeId);
+      } else {
+        // Select
+        return [...prev, programmeId];
+      }
+    });
+  };
+
+  const copyProcedureToProgrammes = () => {
+    Swal.fire({
+      icon: "question",
+      text: "Are you sure you want to copy this procedure to the selected programmes",
+      showCancelButton: true,
+      confirmButtonText: "Yes",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          setCopying(true);
+          const { data } = await httpService.post(
+            "caosce/copyproceduretoprogramme",
+            {
+              selectedProgrammes,
+              procedureId: row?._id || "",
+            },
+          );
+
+          toast.success(data);
+          setShowCopy(false);
+          setSelectedProgrammes([]);
+        } catch (error) {
+          toastError(error);
+        } finally {
+          setCopying(false);
+        }
+        console.log({ selectedProgrammes });
+      }
+    });
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleModalClose = () => {
+    setShowCopy(false);
+    setSelectedProgrammes([]);
+    //setProcedure(null);
+  };
+  const open = Boolean(anchorEl);
+
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleDelete = () => {
+    Swal.fire({
+      icon: "question",
+      text: "Are you sure you want to delete this procedure",
+      showCancelButton: true,
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          setDeleting(true);
+          const { data } = await httpService.delete(
+            `caosce/deleteprocedure?procedureId=${row._id}`,
+          );
+          if (data) {
+            toast.success(data);
+            handleModalClose();
+
+            setRefresh(!refresh);
+          }
+        } catch (error) {
+          toastError(error);
+        } finally {
+          setDeleting(false);
+        }
+      }
+    });
+  };
+
+  const fetchProgrammes = async () => {
+    setLoading(true);
+    try {
+      const { data } = await httpService(
+        "caosce/fetchprogrammeswithexception",
+        {
+          params: { id: _id },
+        },
+      );
+      if (data) {
+        setProgrammes(data);
+        setShowCopy(true);
+        console.log(data);
+        // setProgrammeData(data);
+      }
+    } catch (error) {
+      setShowCopy(false);
+      toastError(error);
+    }
+    //setProgrammeProcedures(data);
+    setLoading(false);
+  };
+
+  const handleEdit = () => {};
+  return (
+    <>
+      <IconButton onClick={handleClick}>
+        <MoreVert />
+      </IconButton>
+
+      <Menu anchorEl={anchorEl} open={open} onClose={handleMenuClose}>
+        <MenuItem sx={{ mb: 1 }} onClick={handleEdit}>
+          <Typography color="info">
+            Edit {"  "} <FaEdit />
+          </Typography>
+        </MenuItem>
+
+        <MenuItem
+          sx={{ mb: 1 }}
+          onClick={() => {
+            handleMenuClose(); // close menu first
+            fetchProgrammes(); // then open modal
+          }}
+        >
+          <Typography color="success">
+            Copy
+            {copying ? (
+              <CircularProgress sx={{ ml: 1 }} size={15} color="success" />
+            ) : (
+              <FileCopy sx={{ ml: 1 }} />
+            )}
+          </Typography>
+        </MenuItem>
+        <MenuItem sx={{ mb: 1 }} onClick={handleDelete}>
+          <Typography color="error">
+            Delete
+            {deleting ? (
+              <CircularProgress sx={{ ml: 1 }} size={15} color="error" />
+            ) : (
+              <Delete sx={{ ml: 1 }} />
+            )}
+          </Typography>
+        </MenuItem>
+      </Menu>
+
+      <Modal
+        show={showCopy}
+        backdrop="static"
+        centered
+        onHide={handleModalClose}
+      >
         <Modal.Header closeButton className="border-0">
           <Modal.Title>Programmes</Modal.Title>
         </Modal.Header>
@@ -525,10 +614,8 @@ function ProgrammePage() {
 
               <Stack>
                 <Typography textTransform={"uppercase"} variant="body2">
-                  {procedure?.name}{" "}
-                  <span className="fw-bold text-success">
-                    ({procedure?.code})
-                  </span>
+                  {row?.name}{" "}
+                  <span className="fw-bold text-success">({row?.code})</span>
                 </Typography>
               </Stack>
             </div>
@@ -563,14 +650,13 @@ function ProgrammePage() {
             disabled={!selectedProgrammes.length}
             color="error"
             onClick={copyProcedureToProgrammes}
+            loading={loading}
           >
             COPY PROCEDURE TO SELECTED PROGRAMME
             {selectedProgrammes.length > 1 ? "S" : ""}
           </Button>
         </Modal.Footer>
       </Modal>
-    </div>
+    </>
   );
 }
-
-export default ProgrammePage;
