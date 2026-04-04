@@ -18,17 +18,7 @@ import { useLoading } from "../../../context/LoadingContext";
 import { useRefresh } from "../../../context/RefreshContext";
 import { toastError } from "../../../components/ErrorToast";
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
-
-type IProgrammeData = {
-  name: string;
-  code: string;
-  viva: number;
-  procedure: number;
-  research: number;
-  clientCare: number;
-  expectantFamilyCare: number;
-  _id?: string;
-};
+import type { IProgrammeData } from "../../../types/IProgramme";
 
 type IComponent = {
   name: keyof Pick<

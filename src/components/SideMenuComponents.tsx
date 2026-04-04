@@ -39,7 +39,7 @@ function SideMenuComponents() {
     { path: "/monitoringdashboard", name: "Monitoring Dashboard", icon: Tv },
     { path: "/candidate", name: "Candidate", icon: Person },
     { path: "/programmes", name: "Programmes", icon: Book },
-    { path: "/authoringtool", name: "Authoring Tool", icon: Edit },
+    { path: "/authoring", name: "Authoring", icon: Edit },
     { path: "/users", name: "Users", icon: People },
   ];
 
