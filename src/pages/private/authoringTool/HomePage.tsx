@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Typography } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
 import { useAppUser } from "../../../context/AppUserContext";
@@ -7,22 +7,30 @@ import { toastError } from "../../../components/ErrorToast";
 import { useNavigate } from "react-router-dom";
 
 export default function HomePage() {
-  const [file, setFile] = useState(null);
+  const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
 
   const { user } = useAppUser();
 
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    setFile(e.target.files[0]);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setFile(e.target.files[0]);
+    } else {
+      setFile(null);
+    }
   };
 
   const uploadFile = async () => {
+    if (!file) {
+      toastError("No file selected");
+      return;
+    }
     const formData = new FormData();
     setLoading(true);
     //console.log(file.name);
-    formData.append("testform", file, file.name);
+    formData.append("testform", file, file?.name);
 
     try {
       const { data } = await httpService.post(
@@ -52,7 +60,7 @@ export default function HomePage() {
           </div>
           <div className="col-lg-5">
             <div>
-              <label for="testform" className="form-label">
+              <label htmlFor="testform" className="form-label">
                 Select a word document
               </label>
               <input
@@ -93,7 +101,7 @@ export default function HomePage() {
             <div className="d-flex justify-content-center">
               <div className="col-lg-5">
                 <div>
-                  <label for="testform" className="form-label">
+                  <label htmlFor="testform" className="form-label">
                     Select a word document
                   </label>
                   <input

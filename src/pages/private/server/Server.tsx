@@ -4,13 +4,13 @@ import { httpService } from "../../../httpService";
 import { Typography } from "@mui/material";
 import { HomeWork } from "@mui/icons-material";
 
-type ICentre = {
-  centreId: string;
-  password: string;
-  state: string;
-  name: string;
-  capacity: number;
-};
+// type ICentre = {
+//   centreId: string;
+//   password: string;
+//   state: string;
+//   name: string;
+//   capacity: number;
+// };
 const Server = () => {
   const getServers = async () => {
     try {
@@ -25,10 +25,10 @@ const Server = () => {
     getServers();
   }, []);
 
-  const columns = [
-    { field: "id", headerName: "ID", width: 50 },
-    { field: "centreId", headerName: "Centre ID", width: 100 },
-  ];
+  // const columns = [
+  //   { field: "id", headerName: "ID", width: 50 },
+  //   { field: "centreId", headerName: "Centre ID", width: 100 },
+  // ];
   return (
     <div>
       <div className="mb-5">

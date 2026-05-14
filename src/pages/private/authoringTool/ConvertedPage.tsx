@@ -13,7 +13,7 @@ import parser from "html-react-parser";
 import { Badge } from "react-bootstrap";
 import { useNavigate, useLocation } from "react-router-dom";
 import { LoadingButton } from "@mui/lab";
-import { Chat, Logout, RepeatRounded, Upload } from "@mui/icons-material";
+import { Chat, Logout, Upload } from "@mui/icons-material";
 import { Alert } from "@mui/material";
 import { Modal } from "react-bootstrap";
 import Swal from "sweetalert2";
@@ -32,9 +32,20 @@ type IResponse = {
   error: string;
 };
 
+export interface IProgramme {
+  _id: string;
+  name: string;
+  code: string;
+  viva: number;
+  procedure: number;
+  research: number;
+  clientCare: number;
+  expectantFamilyCare: number;
+  createdBy: string;
+}
 export default function ConvertedPage() {
   const [response, setResponse] = useState<IResponse[]>([]);
-  const [subjects, setSubjects] = useState([]);
+  const [subjects, setSubjects] = useState<IProgramme[]>([]);
   const [loading, setLoading] = useState(false);
   const [programmeToUpload, setProgrammeToUpload] =
     useState<IProgrammeData | null>(null);
@@ -126,14 +137,16 @@ export default function ConvertedPage() {
 
   const getProgrammes = async () => {
     setLoading(true);
-    const { data, error } = await httpService("programme/view");
-    if (data) {
-      console.log(data);
-      setSubjects(data.programmes);
+
+    try {
+      const response = await httpService("programme/view");
+      if (response.data) {
+        setSubjects(response.data.programmes);
+      }
+    } catch (error) {
+      toastError(error);
     }
-    if (error) {
-      alert(error);
-    }
+
     setLoading(false);
   };
 
@@ -198,24 +211,6 @@ export default function ConvertedPage() {
       }, 100);
     }
   }, [location]);
-
-  const makeOptionCorrectAnswer = async (questionIndex, correctAnswer) => {
-    Swal.fire({
-      icon: "question",
-      title: "Make this option the correct answer?",
-      text: "This cannot be undone. To undo this, you will have to upload the form file, all over again",
-      showCancelButton: true,
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        const { data } = await httpService.patch("updatecorrectanswer", {
-          questionIndex,
-          correctAnswer,
-        });
-
-        Swal.fire({ icon: "success", title: data }).then(() => getData());
-      }
-    });
-  };
 
   return (
     <div>
@@ -303,15 +298,7 @@ export default function ConvertedPage() {
                       </div>
                     )}
                     {c.error && c.error === no_correct_answer && (
-                      <div>
-                        <LoadingButton
-                          onClick={() => {
-                            makeOptionCorrectAnswer(questionIndex, option);
-                          }}
-                        >
-                          Make this option the correct answer
-                        </LoadingButton>
-                      </div>
+                      <div className="text-danger">No correct answer found</div>
                     )}
                   </Stack>
                 ))}
@@ -360,10 +347,12 @@ export default function ConvertedPage() {
                           fullWidth
                           label="Select subject"
                           select
-                          onChange={(e) => setProgrammeToUpload(e.target.value)}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                            setProgrammeToUpload(e.target.value as any)
+                          }
                         >
                           {subjects.map((c) => (
-                            <MenuItem value={c}>
+                            <MenuItem value={c._id}>
                               <Typography textTransform={"uppercase"}>
                                 {`${c.name} - ${c.code}`}
                               </Typography>

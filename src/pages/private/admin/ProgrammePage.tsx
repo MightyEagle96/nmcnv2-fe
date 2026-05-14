@@ -7,6 +7,7 @@ import {
   Typography,
   MenuItem,
   Menu,
+  Tooltip,
 } from "@mui/material";
 import { Modal } from "react-bootstrap";
 import { LoadingButton } from "@mui/lab";
@@ -65,7 +66,7 @@ function ProgrammePage() {
     expectantFamilyCare: 0,
   });
   const [programmes, setProgrammes] = useState<ProgrammeRow[]>([]);
-  const [errorCompute, setErrorCompute] = useState<String>("");
+  const [errorCompute, setErrorCompute] = useState<string>("");
   const [total, setTotal] = useState(0);
   const [showCreate, setShowCreate] = useState(false);
 
@@ -93,6 +94,10 @@ function ProgrammePage() {
 
       if (total > 100) {
         setErrorCompute(`Total must not exceed 100. Current total is ${total}`);
+      } else if (total < 100) {
+        setErrorCompute(
+          `Total must not be below 100. Current total is ${total}`,
+        );
       } else {
         setErrorCompute("");
       }
@@ -150,15 +155,28 @@ function ProgrammePage() {
     { field: "id", headerName: "S/N", width: 100 },
     {
       field: "name",
-      headerName: "Programme Name",
-      width: 300,
+      headerName: "Name",
+      width: 200,
       renderCell: (params) => (
-        <span style={{ textTransform: "capitalize" }}>{params.row.name}</span>
+        <Tooltip title={params.row.name}>
+          <span
+            style={{
+              display: "block",
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              maxWidth: "100%",
+              textTransform: "uppercase",
+            }}
+          >
+            {params.row.name}
+          </span>
+        </Tooltip>
       ),
     },
     {
       field: "code",
-      headerName: "Programme Code",
+      headerName: "Code",
       width: 180,
       renderCell: (params) => (
         <span style={{ textTransform: "uppercase" }}>{params.row.code}</span>
@@ -168,7 +186,7 @@ function ProgrammePage() {
       (c): GridColDef<ProgrammeRow> => ({
         field: c.name,
         headerName: c.label,
-        width: 180,
+        width: 120,
         type: "number",
       }),
     ),

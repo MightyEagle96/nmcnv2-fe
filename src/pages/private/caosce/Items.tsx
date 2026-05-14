@@ -10,6 +10,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import { Badge, Modal } from "react-bootstrap";
 import parser from "html-react-parser";
 import Swal from "sweetalert2";
+import { Visibility } from "@mui/icons-material";
 interface IQuestion {
   question: string;
   options: string[];
@@ -20,7 +21,8 @@ function Items() {
   const [loading, setLoading] = useState<boolean>();
   const [excelFile, setExcelFile] = useState<File | null>(null);
   const [wordFile, setWordFile] = useState<File | null>(null);
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState<IQuestion[]>([]);
+  const [showModal, setShowModal] = useState(false);
 
   const query = {
     id: params.get("id"),
@@ -188,10 +190,7 @@ function Items() {
   }, []);
 
   const maxOptions = Math.max(
-    ...items.map(
-      (row: { question: string; options: []; correctAnswer: string }) =>
-        row.options?.length ?? 0,
-    ),
+    ...items.map((row: IQuestion) => row.options?.length ?? 0),
   );
   const dynamicOptionColumns = Array.from({ length: maxOptions }).map(
     (_, index) => ({
@@ -340,11 +339,18 @@ function Items() {
         </div>
       </div>
       <div className="mb-3">
-        <div className="text-end mb-3">
+        <div className="d-flex justify-content-between mb-3">
+          <Button
+            onClick={() => setShowModal(!showModal)}
+            endIcon={<Visibility />}
+          >
+            View questions
+          </Button>
           <Button color="error" endIcon={<FaTrash />} onClick={deleteQuestions}>
             Delete Questions
           </Button>
         </div>
+
         <DataGrid columns={columns} rows={items} loading={loading} />
       </div>
       <Modal
@@ -432,6 +438,48 @@ function Items() {
             Upload items
           </Button>
         </Modal.Footer>
+      </Modal>
+
+      <Modal
+        backdrop="static"
+        show={showModal}
+        size="xl"
+        onHide={() => setShowModal(!showModal)}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>
+            <Typography variant="h5" fontWeight={700}>
+              View Questions
+            </Typography>
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {items.map((c, i) => (
+            <div className="mb-4">
+              <div className="mb-2">
+                <Typography variant="overline">Question {i + 1}</Typography>
+                <Typography>{parser(c.question)}</Typography>
+              </div>
+              <div>
+                {c.options.map((d, k) => (
+                  <Stack direction={"row"} spacing={2} sx={{ mb: 1 }}>
+                    <div>
+                      <Typography>{String.fromCharCode(65 + k)}.</Typography>
+                    </div>
+                    <div>
+                      <Typography>{parser(d)}</Typography>
+                    </div>
+                    <div>
+                      {d === c.correctAnswer && (
+                        <Badge bg="success">CORRECT ANSWER</Badge>
+                      )}
+                    </div>
+                  </Stack>
+                ))}
+              </div>
+            </div>
+          ))}
+        </Modal.Body>
       </Modal>
     </div>
   );
