@@ -26,7 +26,7 @@ const LoginPage = () => {
   };
   return (
     <div
-      style={{ maxHeight: "80vh" }}
+      style={{ minHeight: "80vh" }}
       className="d-flex justify-content-center"
     >
       <div className="col-lg-4 shadow-sm rounded p-4 my-5">

@@ -37,11 +37,17 @@ function MainRoutes() {
     <BrowserRouter>
       {user ? (
         <>
-          <div className="row m-0">
-            <div className="col-lg-2 py-5 border-end">
+          <div
+            className="row m-0"
+            style={{ height: "100vh", overflow: "hidden" }}
+          >
+            <div
+              className="col-lg-2 py-5 border-end"
+              style={{ height: "100%", overflowY: "auto" }}
+            >
               <SideMenuComponents />
             </div>
-            <div className="col-lg-10 py-5">
+            <div className="col-lg-10 py-5 h-100 overflow-y-auto">
               <Routes>
                 {privateRoutes.map((c, i) => (
                   <Route key={i} path={c.path} element={<c.component />} />
