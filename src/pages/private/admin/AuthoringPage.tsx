@@ -3,6 +3,7 @@ import { toastError } from "../../../components/ErrorToast";
 import { httpService } from "../../../httpService";
 import { Typography } from "@mui/material";
 import { LoadingButton } from "@mui/lab";
+import PageTitle from "../../../components/PageTitle";
 
 const AuthoringPage = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -43,9 +44,7 @@ const AuthoringPage = () => {
   };
   return (
     <div>
-      <div className="mb-5">
-        <h1>Authoring Page</h1>
-      </div>
+      <PageTitle title="Authoring Tool" />
       <div className="col-lg-5">
         <div>
           <label htmlFor="testform" className="form-label">

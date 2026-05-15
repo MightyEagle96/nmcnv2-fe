@@ -22,6 +22,7 @@ import { toastError, toastSuccess } from "../../../components/ErrorToast";
 import { DataGrid } from "@mui/x-data-grid";
 import { Link } from "react-router-dom";
 import { useRefresh } from "../../../context/RefreshContext";
+import PageTitle from "../../../components/PageTitle";
 
 function ExaminationPage() {
   const [selectedProgrammes, setSelectedProgrammes] = useState<string[]>([]);
@@ -251,12 +252,8 @@ function ExaminationPage() {
 
   return (
     <div>
-      {/* <PageTitle title={"Examinations"} /> */}
-      <div className="mb-5">
-        <Typography variant="h3" fontWeight={500}>
-          Examinations
-        </Typography>
-      </div>
+      <PageTitle title="Examination" />
+
       <div>
         <div className=" mb-3">
           <Stack direction={"row"} spacing={2}>

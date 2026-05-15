@@ -1,13 +1,10 @@
 import { Typography } from "@mui/material";
+import PageTitle from "../../components/PageTitle";
 
 const Dashboard = () => {
   return (
     <div>
-      <div className="mb-5">
-        <Typography variant="h3" fontWeight={500}>
-          Hello there
-        </Typography>
-      </div>
+      <PageTitle title="Dashboard" />
 
       <div className="row p-4 g-4">
         <div className="col-lg-3 p-3 bg-light m-1  ">

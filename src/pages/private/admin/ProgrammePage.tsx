@@ -20,6 +20,7 @@ import { useRefresh } from "../../../context/RefreshContext";
 import { toastError } from "../../../components/ErrorToast";
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
 import type { IProgrammeData } from "../../../types/IProgramme";
+import PageTitle from "../../../components/PageTitle";
 
 type IComponent = {
   name: keyof Pick<
@@ -201,10 +202,7 @@ function ProgrammePage() {
   ];
   return (
     <div>
-      {/* <PageTitle title={"Subjects"} /> */}
-      <div className="mb-5">
-        <Typography variant="h3">Programmes</Typography>
-      </div>
+      <PageTitle title="Programmes" />
       <div>
         <div className="row">
           <div className="col-lg-3">

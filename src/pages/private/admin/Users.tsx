@@ -14,6 +14,7 @@ import { toast } from "react-toastify";
 import { DataGrid } from "@mui/x-data-grid";
 import { Link } from "react-router-dom";
 import { Modal } from "react-bootstrap";
+import PageTitle from "../../../components/PageTitle";
 
 export interface IAccount {
   firstName: string;
@@ -137,9 +138,7 @@ function Users() {
   }, []);
   return (
     <div>
-      <div className="mb-5">
-        <h1>Users Management Console</h1>
-      </div>
+      <PageTitle title="User Management Console" />
       <Button variant="contained" onClick={() => setOpen(true)}>
         Create User
       </Button>
