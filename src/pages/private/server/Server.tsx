@@ -37,7 +37,6 @@ const Server = () => {
 
       setCentres(data.centres);
       setTotal(data.total);
-      console.log(data);
     } catch (error) {
       toastError(error);
     }
@@ -71,16 +70,25 @@ const Server = () => {
   };
 
   const columns = [
-    { field: "id", headerName: "ID", width: 50 },
+    {
+      field: "id",
+      headerName: "ID",
+      width: 50,
+      renderCell: (params: any) => (
+        <span className="text-capitaliz text-muted">{params.row.id}.</span>
+      ),
+    },
     { field: "centreId", headerName: "Centre ID", width: 200 },
     { field: "password", headerName: "Password", width: 200 },
   ];
   return (
     <div>
       <PageTitle title="Server Management Console" />
-      <Button variant="contained" onClick={() => setShow(!show)}>
-        generate servers
-      </Button>
+      <div className="mb-3">
+        <Button variant="contained" onClick={() => setShow(!show)}>
+          generate servers
+        </Button>
+      </div>
 
       <div className="row">
         <div className="col-lg-5">
