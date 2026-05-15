@@ -1,16 +1,29 @@
-import { Clear, Done, Visibility, VisibilityOff } from "@mui/icons-material";
+import {
+  Clear,
+  Done,
+  Visibility,
+  VisibilityOff,
+  Close,
+} from "@mui/icons-material";
+
 import {
   Button,
   IconButton,
   InputAdornment,
   MenuItem,
   TextField,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { httpService } from "../../../httpService";
 import { toastError } from "../../../components/ErrorToast";
 import { toast } from "react-toastify";
 import { DataGrid } from "@mui/x-data-grid";
+import { Link } from "react-router-dom";
+import { Modal } from "react-bootstrap";
 
 export interface IAccount {
   firstName: string;
@@ -34,6 +47,7 @@ function Users() {
   const [userData, setUserData] = useState({});
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState<IAccount[]>([]);
+  const [open, setOpen] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUserData({
@@ -66,6 +80,15 @@ function Users() {
       width: 200,
       renderCell: (params: any) => <span>{params.row.username}</span>,
     },
+
+    {
+      field: "active",
+      headerName: "Role",
+      width: 150,
+      renderCell: (params: any) => (
+        <span>{roles[params.row.role as keyof typeof roles]}</span>
+      ),
+    },
     {
       field: "disabled",
       headerName: "Active",
@@ -81,11 +104,13 @@ function Users() {
       ),
     },
     {
-      field: "active",
-      headerName: "Role",
+      field: "_id",
+      headerName: "Vew",
       width: 150,
       renderCell: (params: any) => (
-        <span>{roles[params.row.role as keyof typeof roles]}</span>
+        <Button component={Link} to={`/user?id=${params.row._id}`}>
+          view
+        </Button>
       ),
     },
   ];
@@ -125,89 +150,100 @@ function Users() {
       <div className="mb-5">
         <h1>Users Management Console</h1>
       </div>
-      <form onSubmit={createUser}>
-        <div className="col-lg-4">
-          <div className="mb-3">
-            <TextField
-              required
-              fullWidth
-              label="First Name"
-              name="firstName"
-              onChange={handleChange}
-            />
-          </div>
-          <div className="mb-3">
-            <TextField
-              required
-              fullWidth
-              label="Last Name"
-              name="lastName"
-              onChange={handleChange}
-            />
-          </div>
-          <div className="mb-3">
-            <TextField
-              required
-              fullWidth
-              label="Username"
-              name="username"
-              onChange={handleChange}
-            />
-          </div>
-          <div className="mb-3">
-            <TextField
-              required
-              fullWidth
-              label="Password"
-              type={showPassword ? "text" : "password"}
-              name="password"
-              onChange={handleChange}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => setShowPassword((prev) => !prev)}
-                      edge="start"
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </div>
-          <div className="mb-3">
-            <TextField
-              required
-              select
-              fullWidth
-              label="Select Role"
-              onChange={(e) =>
-                setUserData({ ...userData, role: e.target.value })
-              }
-            >
-              {Object.entries(roles).map(([key, value]) => (
-                <MenuItem key={key} value={key}>
-                  {value}
-                </MenuItem>
-              ))}
-            </TextField>
-          </div>
-          <div className="mb-3">
-            <Button
-              variant="contained"
-              fullWidth
-              type="submit"
-              loading={loading}
-            >
-              Create a user
-            </Button>
-          </div>
-        </div>
-      </form>
+      <Button variant="contained" onClick={() => setOpen(true)}>
+        Create User
+      </Button>
+
       <div className="my-5">
         <DataGrid rows={users} columns={columns} loading={loading} />
       </div>
+      <Modal backdrop="static" show={open} onHide={() => setOpen(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Create User</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <form onSubmit={createUser}>
+            <div className="">
+              <div className="mb-3">
+                <TextField
+                  required
+                  fullWidth
+                  label="First Name"
+                  name="firstName"
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="mb-3">
+                <TextField
+                  required
+                  fullWidth
+                  label="Last Name"
+                  name="lastName"
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="mb-3">
+                <TextField
+                  required
+                  fullWidth
+                  label="Username"
+                  name="username"
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="mb-3">
+                <TextField
+                  required
+                  fullWidth
+                  label="Password"
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  onChange={handleChange}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={() => setShowPassword((prev) => !prev)}
+                          edge="start"
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </div>
+              <div className="mb-3">
+                <TextField
+                  required
+                  select
+                  fullWidth
+                  label="Select Role"
+                  onChange={(e) =>
+                    setUserData({ ...userData, role: e.target.value })
+                  }
+                >
+                  {Object.entries(roles).map(([key, value]) => (
+                    <MenuItem key={key} value={key}>
+                      {value}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </div>
+              <div className="mb-3">
+                <Button
+                  variant="contained"
+                  fullWidth
+                  type="submit"
+                  loading={loading}
+                >
+                  Create a user
+                </Button>
+              </div>
+            </div>
+          </form>
+        </Modal.Body>
+      </Modal>
     </div>
   );
 }
