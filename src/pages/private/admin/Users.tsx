@@ -1,10 +1,4 @@
-import {
-  Clear,
-  Done,
-  Visibility,
-  VisibilityOff,
-  Close,
-} from "@mui/icons-material";
+import { Clear, Done, Visibility, VisibilityOff } from "@mui/icons-material";
 
 import {
   Button,
@@ -12,10 +6,6 @@ import {
   InputAdornment,
   MenuItem,
   TextField,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { httpService } from "../../../httpService";
