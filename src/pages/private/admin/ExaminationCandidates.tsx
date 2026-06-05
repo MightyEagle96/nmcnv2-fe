@@ -182,7 +182,7 @@ function ExaminationCandidates() {
         <div className="row">
           <div className="col-lg-4">
             <div>
-              <label for="testform" className="form-label">
+              <label htmlFor="testform" className="form-label">
                 Upload candidate's excel file
               </label>
               <input
