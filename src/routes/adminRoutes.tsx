@@ -1,4 +1,5 @@
 import NotFound from "../pages/NotFound";
+import ExaminationCandidates from "../pages/private/admin/ExaminationCandidates";
 
 import ExaminationPage from "../pages/private/admin/ExaminationPage";
 import ExaminationSchedule from "../pages/private/admin/ExaminationSchedule";
@@ -14,6 +15,7 @@ export const adminRoutes = [
   { path: "/", component: Dashboard },
   { path: "/servers", component: Server },
   { path: "/examination", component: ExaminationPage },
+  { path: "/candidates", component: ExaminationCandidates },
   { path: "/schedule", component: ExaminationSchedule },
   { path: "/programmes", component: ProgrammePage },
   { path: "/users", component: Users },
