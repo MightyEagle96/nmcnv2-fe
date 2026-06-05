@@ -17,14 +17,20 @@ import { Badge, Modal, Table } from "react-bootstrap";
 import { People, Replay } from "@mui/icons-material";
 import { toastError } from "../../../components/ErrorToast";
 
+type IExamination = {
+  name: string;
+  type: string;
+  duration: number;
+};
+
 function ExamSessions() {
-  const [examination, setExamination] = useState(null);
-  const [examCentres, setExamCentres] = useState([]);
-  const [sessions, setSessions] = useState([]);
+  const [examination, setExamination] = useState<IExamination | null>(null);
+  const [examCentres, setExamCentres] = useState<any>([]);
+  const [sessions, setSessions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [sessionSummary, setSessionSummary] = useState([]);
+  const [sessionSummary, setSessionSummary] = useState<any[]>([]);
   const [fetching, setFetching] = useState(false);
-  const [centreSummary, setCentreSummary] = useState([]);
+  const [centreSummary, setCentreSummary] = useState<any[]>([]);
   const [show, setShow] = useState(false);
   const [fetchingSummary, setFetchingSummary] = useState(false);
   const [session, setSession] = useState("");
@@ -99,16 +105,16 @@ function ExamSessions() {
 
     setLoading(false);
   };
-  const assignCandidatesToSession = async () => {
-    setLoading(true);
-    const { data } = await httpService(`/examination/assigncandidates/${id}`);
+  // const assignCandidatesToSession = async () => {
+  //   setLoading(true);
+  //   const { data } = await httpService(`/examination/assigncandidates/${id}`);
 
-    if (data) {
-      getData();
-      toast.success(data);
-    }
-    setLoading(false);
-  };
+  //   if (data) {
+  //     getData();
+  //     toast.success(data);
+  //   }
+  //   setLoading(false);
+  // };
 
   const synchronizeData = async () => {
     setLoading(true);
@@ -141,7 +147,7 @@ function ExamSessions() {
     setLoading(false);
   };
 
-  const getCentreResponseSummary = async (e) => {
+  const getCentreResponseSummary = async (e: any) => {
     e.preventDefault();
     //console.log("hello");
     setFetchingSummary(true);
@@ -209,7 +215,7 @@ function ExamSessions() {
                     </tr>
                   </thead>
                   <tbody>
-                    {examCentres.map((c, i) => (
+                    {examCentres.map((c: any, i: number) => (
                       <tr key={i}>
                         <td>
                           <Typography variant="body2">{i + 1}</Typography>
