@@ -253,6 +253,7 @@ function ExaminationCandidates() {
 
         <div>
           <DataGrid
+            loading={loading}
             columns={columns}
             rowCount={totalCandidates}
             paginationModel={paginationModel}

@@ -223,7 +223,7 @@ function ExaminationPage() {
       headerName: "Sessions",
       width: 100,
       renderCell: (params: any) => (
-        <Button component={Link} to={`/schedule?examination=${params.row._id}`}>
+        <Button component={Link} to={`/sessions?examination=${params.row._id}`}>
           view
         </Button>
       ),
