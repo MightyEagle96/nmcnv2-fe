@@ -151,6 +151,8 @@ export default function ConvertedPage() {
   };
 
   const uploadQuestions = async () => {
+    if (!programmeToUpload)
+      return toastError("Please select a programme to upload to");
     Swal.fire({
       icon: "question",
       title: "Upload Question?",
@@ -162,7 +164,7 @@ export default function ConvertedPage() {
         try {
           const { data } = await httpService.post(
             "questionbank/uploadquestions",
-            { programme: programmeToUpload?._id, questions: response },
+            { programme: programmeToUpload, questions: response },
           );
 
           if (data) {
@@ -339,13 +341,13 @@ export default function ConvertedPage() {
                       onClick={getProgrammes}
                       loading={loading}
                     >
-                      GET subjects
+                      Get Programmes
                     </LoadingButton>
                     {subjects.length > 0 && (
                       <div className="mt-4">
                         <TextField
                           fullWidth
-                          label="Select subject"
+                          label="Select programme"
                           select
                           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                             setProgrammeToUpload(e.target.value as any)
