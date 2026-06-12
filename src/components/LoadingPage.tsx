@@ -19,7 +19,7 @@ function LoadingPage() {
 
         <div className="mt-2">
           <Typography variant="h6" color={"primary"}>
-            NMCN
+            STERLING
           </Typography>
 
           {/* Circular Progress with gradient */}

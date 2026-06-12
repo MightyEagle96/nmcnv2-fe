@@ -33,7 +33,7 @@ const LoginPage = () => {
         <div className="text-center mb-4">
           <img src={logo} height={100} className="mb-4" />
           <Typography variant="h4" fontWeight={700}>
-            NMCN ADMIN LOGIN
+            STERLING ADMIN LOGIN
           </Typography>
         </div>
         <form onSubmit={loginUser}>
